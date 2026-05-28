@@ -41,7 +41,14 @@
     .ref-box input { flex:1; min-width:0; border:0; background:transparent; font:inherit; color:var(--ink); outline:none; }
     .btn { border:0; border-radius:6px; padding:12px 14px; min-height:42px; font-weight:800; cursor:pointer; background:var(--brand); color:#fff; white-space:nowrap; }
     .btn:hover { background:var(--brand-dark); }
-    @media (max-width:860px) { .hero, .metrics { grid-template-columns:1fr; } .topbar { padding:0 18px; } .layout { padding:20px; } .user-pill { display:none; } h1 { font-size:28px; } .ref-box { flex-direction:column; align-items:stretch; } }
+    .withdrawal-toast { position:fixed; right:24px; bottom:24px; width:min(390px,calc(100vw - 32px)); display:grid; grid-template-columns:auto 1fr auto; gap:14px; align-items:start; background:#fff; border:1px solid var(--line); border-left:4px solid var(--accent); border-radius:8px; box-shadow:0 24px 70px rgba(23,32,51,.18); padding:16px; z-index:40; transform:translateY(28px); opacity:0; pointer-events:none; transition:opacity .25s ease, transform .25s ease; }
+    .withdrawal-toast.show { opacity:1; transform:translateY(0); pointer-events:auto; }
+    .toast-icon { width:42px; height:42px; border-radius:8px; display:grid; place-items:center; background:#e9f7f5; color:#0f766e; font-weight:900; }
+    .toast-kicker { color:#0f766e; font-size:12px; font-weight:900; text-transform:uppercase; letter-spacing:0; margin-bottom:4px; }
+    .toast-title { color:var(--ink); font-weight:800; line-height:1.35; margin:0 0 4px; }
+    .toast-meta { color:var(--muted); font-size:13px; line-height:1.45; margin:0; }
+    .toast-close { border:0; background:#f2f5f9; color:var(--ink); width:28px; height:28px; border-radius:6px; cursor:pointer; font-weight:900; }
+    @media (max-width:860px) { .hero, .metrics { grid-template-columns:1fr; } .topbar { padding:0 18px; } .layout { padding:20px; } .user-pill { display:none; } h1 { font-size:28px; } .ref-box { flex-direction:column; align-items:stretch; } .withdrawal-toast { right:16px; bottom:16px; } }
   </style>
 </head>
 <body>
@@ -88,6 +95,15 @@
       </div>
     </section>
   </main>
+  <aside class="withdrawal-toast" id="withdrawalToast" aria-live="polite" aria-atomic="true">
+    <div class="toast-icon">$</div>
+    <div>
+      <div class="toast-kicker">Withdrawal update</div>
+      <p class="toast-title" id="withdrawalTitle">A client has withdrawn funds.</p>
+      <p class="toast-meta" id="withdrawalMeta">Updated just now.</p>
+    </div>
+    <button class="toast-close" type="button" aria-label="Close notification" onclick="hideWithdrawalToast()">x</button>
+  </aside>
   <script>
     if (localStorage.getItem('signedIn') !== 'true') {
       window.location.href = 'sign in.html';
@@ -198,9 +214,33 @@
         ctx.fill();
       });
     }
+    const withdrawalLocations = ['Kenya', 'Uganda', 'Ethiopia', 'United Kingdom', 'United States', 'Canada', 'Germany', 'South Africa', 'United Arab Emirates', 'Australia'];
+    const withdrawalNames = ['A client', 'A verified member', 'A partner', 'A customer', 'A registered user'];
+    const withdrawalAmounts = [85, 120, 175, 240, 310, 450, 520, 690, 830, 975, 1240];
+    const withdrawalIntervalMs = 20 * 60 * 1000;
+    let withdrawalTimer;
+    function pickRandom(items) {
+      return items[Math.floor(Math.random() * items.length)];
+    }
+    function showWithdrawalToast() {
+      const location = pickRandom(withdrawalLocations);
+      const name = pickRandom(withdrawalNames);
+      const amount = pickRandom(withdrawalAmounts).toLocaleString('en-GB');
+      const toast = document.getElementById('withdrawalToast');
+      document.getElementById('withdrawalTitle').textContent = name + ' from ' + location + ' withdrew GBP ' + amount + '.';
+      document.getElementById('withdrawalMeta').textContent = 'Withdrawal notification - ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      toast.classList.add('show');
+      window.clearTimeout(withdrawalTimer);
+      withdrawalTimer = window.setTimeout(hideWithdrawalToast, 9000);
+    }
+    function hideWithdrawalToast() {
+      document.getElementById('withdrawalToast').classList.remove('show');
+    }
     recordVisit();
     renderDashboard();
     setInterval(renderDashboard, 1000);
+    setTimeout(showWithdrawalToast, withdrawalIntervalMs);
+    setInterval(showWithdrawalToast, withdrawalIntervalMs);
   </script>
 </body>
 </html>
