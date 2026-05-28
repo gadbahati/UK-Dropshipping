@@ -48,7 +48,7 @@
     <form class="auth" id="signinForm">
       <div class="eyebrow">Existing account</div>
       <h2>Sign in</h2>
-      <p class="hint">Use the email and password created on the signup page.</p>
+      <p class="hint">Use your account details. Verified admin credentials open Admin Control.</p>
       <label for="email">Email address</label>
       <input id="email" name="email" type="email" autocomplete="username" required placeholder="you@example.com" />
       <label for="password">Password</label>
@@ -59,6 +59,8 @@
     </form>
   </main>
   <script>
+    const ADMIN_EMAIL = 'dropshimpent.ecommerce@gmail.com';
+    const ADMIN_PASSWORD = 'Almah@203';
     const message = document.getElementById('message');
     function getAccounts() {
       try { return JSON.parse(localStorage.getItem('accounts') || '[]'); } catch (error) { return []; }
@@ -72,12 +74,20 @@
       event.preventDefault();
       const email = document.getElementById('email').value.trim().toLowerCase();
       const password = document.getElementById('password').value;
+      if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+        localStorage.setItem('adminSession', ADMIN_EMAIL);
+        localStorage.setItem('signedIn', 'true');
+        localStorage.setItem('clientName', 'Administrator');
+        window.location.href = 'admin.html';
+        return;
+      }
       const account = getAccounts().find(item => item.email === email && item.password === password);
       if (!account) {
         message.textContent = 'No matching account was found. Please check your details or create an account.';
         message.className = 'message error';
         return;
       }
+      localStorage.removeItem('adminSession');
       localStorage.setItem('clientName', account.fullName);
       localStorage.setItem('clientEmail', account.email);
       localStorage.setItem('clientPhone', account.phone);
