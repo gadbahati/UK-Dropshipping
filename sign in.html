@@ -16,10 +16,14 @@
     .brand { font-weight:800; font-size:22px; }
     .side h1 { font-size:42px; line-height:1.05; margin:0 0 16px; letter-spacing:0; }
     .side p { color:rgba(255,255,255,.78); line-height:1.7; margin:0; }
+    .support { margin-top:28px; color:rgba(255,255,255,.86); line-height:1.7; }
+    .support a { color:#fff; font-weight:800; text-decoration:none; }
     .auth { padding:42px; display:grid; align-content:center; }
     .eyebrow { color:var(--brand); font-weight:800; font-size:13px; text-transform:uppercase; letter-spacing:0; }
     h2 { margin:10px 0 8px; font-size:32px; letter-spacing:0; }
-    .hint { color:var(--muted); line-height:1.6; margin:0 0 24px; }
+    .hint, .message { color:var(--muted); line-height:1.6; margin:0 0 24px; }
+    .message { margin:14px 0 0; font-weight:700; }
+    .message.error { color:#b42318; }
     label { display:block; margin:14px 0 7px; color:#344054; font-weight:700; font-size:14px; }
     input { width:100%; border:1px solid var(--line); border-radius:6px; padding:13px 14px; font:inherit; outline:none; }
     input:focus { border-color:var(--brand); box-shadow:0 0 0 4px rgba(23,105,224,.12); }
@@ -38,32 +42,48 @@
       <div>
         <h1>Welcome back to your dashboard.</h1>
         <p>Sign in to continue tracking your activity, referral link, and client progress.</p>
+        <p class="support">Customer care: <a href="tel:+447402690551">+44 7402 690551</a><br />Email: <a href="mailto:dropshimpent.ecommerce@gmail.com">dropshimpent.ecommerce@gmail.com</a></p>
       </div>
     </section>
     <form class="auth" id="signinForm">
       <div class="eyebrow">Existing account</div>
       <h2>Sign in</h2>
-      <p class="hint">Enter your account details. Successful sign in opens the dashboard.</p>
-      <label for="email">Email or username</label>
-      <input id="email" name="email" autocomplete="username" required placeholder="you@example.com" />
+      <p class="hint">Use the email and password created on the signup page.</p>
+      <label for="email">Email address</label>
+      <input id="email" name="email" type="email" autocomplete="username" required placeholder="you@example.com" />
       <label for="password">Password</label>
       <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="Your password" />
       <button class="btn btn-primary" type="submit">Sign in</button>
+      <p class="message" id="message" role="alert"></p>
       <p class="switch">Need an account? <a href="sign up.html">Create one</a></p>
     </form>
   </main>
   <script>
+    const message = document.getElementById('message');
+    function getAccounts() {
+      try { return JSON.parse(localStorage.getItem('accounts') || '[]'); } catch (error) { return []; }
+    }
+    function logActivity(label, percent) {
+      const activity = JSON.parse(localStorage.getItem('activityLog') || '[]');
+      activity.push({ label: label, percent: percent, time: new Date().toISOString() });
+      localStorage.setItem('activityLog', JSON.stringify(activity));
+    }
     document.getElementById('signinForm').addEventListener('submit', function (event) {
       event.preventDefault();
-      const login = document.getElementById('email').value.trim();
-      const existingName = localStorage.getItem('clientName');
-      if (!existingName && login) {
-        localStorage.setItem('clientName', login.split('@')[0] || 'Sandra');
+      const email = document.getElementById('email').value.trim().toLowerCase();
+      const password = document.getElementById('password').value;
+      const account = getAccounts().find(item => item.email === email && item.password === password);
+      if (!account) {
+        message.textContent = 'No matching account was found. Please check your details or create an account.';
+        message.className = 'message error';
+        return;
       }
-      if (!localStorage.getItem('referrerName')) {
-        localStorage.setItem('referrerName', 'Sandra');
-      }
+      localStorage.setItem('clientName', account.fullName);
+      localStorage.setItem('clientEmail', account.email);
+      localStorage.setItem('clientPhone', account.phone);
+      localStorage.setItem('referrerName', account.referredBy || 'Sandra');
       localStorage.setItem('signedIn', 'true');
+      logActivity('Signed in', 85);
       window.location.href = 'dashboard.html';
     });
   </script>
