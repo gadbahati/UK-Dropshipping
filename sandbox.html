@@ -1,152 +1,47 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- WCAG 2.4.2: Added a descriptive title for the page. -->
-    <title>Sandbox Environment Notice</title>
-    
-    <!-- Standard meta tags -->
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
-    
-    <script>
-        function cont() {
-            document.cookie = "Deterrence-Bypass=1; domain=live-dropshipment.pantheonsite.io; path=/; max-age=86400;";
-            window.location.reload();
-        }
-    </script>
-    
-    <style>
-        /* Using a more modern and accessible CSS reset */
-        :root {
-            --primary-color: rgb(79 50 206);
-            --text-color: rgb(35 35 45);
-            --background-color: rgb(255 255 255);
-            --focus-outline: 2px solid var(--primary-color);
-        }
-
-        body {
-            /* WCAG 1.4.3, 1.4.4: Using relative units and ensuring high contrast */
-            color: var(--text-color);
-            background-color: var(--background-color);
-            font-family: 'Poppins', sans-serif;
-            font-weight: 400;
-            line-height: 1.6;
-            margin: 0;
-            padding: 1rem;
-            min-height: 100vh;
-            
-            /* Center the main content */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-        }
-
-        /* WCAG 2.4.1: Added a skip link for keyboard users */
-        .skip-link {
-            border: 0;
-            clip: rect(1px, 1px, 1px, 1px);
-            clip-path: inset(50%);
-            height: 1px;
-            margin: -1px;
-            overflow: hidden;
-            padding: 0;
-            position: absolute;
-            width: 1px;
-            white-space: nowrap;
-        }
-
-        .skip-link:focus {
-            clip: auto;
-            clip-path: none;
-            width: auto;
-            height: auto;
-            position: absolute;
-            top: 1rem;
-            left: 1rem;
-            background-color: var(--primary-color);
-            color: var(--background-color);
-            padding: 0.5rem 1rem;
-            z-index: 100;
-            text-decoration: none;
-            border-radius: 3px;
-        }
-
-
-        /* WCAG 1.3.1, 4.1.2: Using semantic <main> tag for the primary content */
-        main {
-            max-width: 45rem;
-            width: 100%;
-        }
-
-        h1 {
-            /* WCAG 1.4.4: Using rem units for scalable text */
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-        }
-
-        p {
-            font-size: 1.1rem;
-            margin: 1rem 0;
-        }
-
-        .pds-button {
-            background-color: var(--primary-color);
-            border: 1px solid var(--primary-color);
-            color: var(--background-color);
-            border-radius: 0.1875rem;
-            box-sizing: border-box;
-            cursor: pointer;
-            font-family: 'Poppins', sans-serif;
-            font-size: 1rem;
-            font-weight: 600;
-            height: 2.5rem;
-            padding: 0.625rem 1rem;
-            text-decoration: none;
-            transition: all 0.2s ease-in-out;
-            white-space: nowrap;
-            margin-top: 1.5rem;
-        }
-
-        /* WCAG 1.4.11, 2.1.1: Ensuring clear focus states for keyboard users */
-        .pds-button:focus,
-        .pds-button:hover {
-            outline: var(--focus-outline);
-            outline-offset: 2px;
-            opacity: 0.9;
-        }
-
-        /* Responsive adjustments for smaller screens */
-        @media (max-width: 699px) {
-            h1 {
-                font-size: 1.75rem;
-            }
-            p {
-                font-size: 1rem;
-            }
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Globalpack Shipping | Sandbox Notice</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root { --ink:#172033; --muted:#667085; --line:#d8e0ea; --brand:#1769e0; --brand-dark:#0f4fb0; --accent:#14b8a6; --white:#fff; --shadow:0 24px 70px rgba(23,32,51,.14); }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; font-family:Inter,Arial,sans-serif; color:var(--ink); background:linear-gradient(135deg,#eef5ff 0%,#f7fbf8 48%,#fff 100%); display:grid; place-items:center; padding:24px; }
+    .notice { width:min(720px,100%); background:rgba(255,255,255,.92); border:1px solid rgba(216,224,234,.9); border-radius:8px; box-shadow:var(--shadow); padding:42px; }
+    .badge { display:inline-flex; gap:8px; align-items:center; padding:8px 12px; border-radius:999px; background:#e9f7f5; color:#0f766e; font-weight:700; font-size:13px; }
+    .dot { width:9px; height:9px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 5px rgba(20,184,166,.16); }
+    h1 { font-size:clamp(32px,5vw,54px); line-height:1.02; margin:22px 0 14px; letter-spacing:0; }
+    p { color:var(--muted); font-size:18px; line-height:1.7; margin:0 0 24px; max-width:58ch; }
+    .warning { border-left:4px solid #f59e0b; background:#fff8e8; color:#744210; padding:14px 16px; border-radius:6px; margin:24px 0; }
+    .actions { display:flex; flex-wrap:wrap; gap:12px; align-items:center; }
+    .btn { border:0; border-radius:6px; padding:14px 18px; min-height:48px; font-weight:800; font-size:15px; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; }
+    .btn-primary { background:var(--brand); color:#fff; box-shadow:0 14px 28px rgba(23,105,224,.25); }
+    .btn-primary:hover { background:var(--brand-dark); }
+    .btn-secondary { background:#fff; color:var(--ink); border:1px solid var(--line); }
+    @media (max-width:560px) { .notice { padding:28px; } .actions { align-items:stretch; flex-direction:column; } .btn { width:100%; } }
+  </style>
 </head>
 <body>
-    <!-- WCAG 2.4.1: This link is the first focusable item for keyboard users. -->
-    <a href="#main-content" class="skip-link">Skip to main content</a>
-
-    <!-- WCAG 1.3.1: Proper semantic structure with a <main> element -->
-    <main id="main-content">
-        <h1>This website is hosted in a sandbox environment.</h1>
-        <p>Sandboxes are typically used for development and testing purposes.</p>
-        <p><strong>Be cautious before entering any personal or financial information.</strong></p>
-        
-        <!-- WCAG 4.1.2: The button has an accessible name from its content. -->
-        <button class="pds-button" onclick='cont()'>Continue</button>
-    </main>
-
+  <main class="notice">
+    <span class="badge"><span class="dot"></span> Sandbox environment</span>
+    <h1>Globalpack Shipping is running in a sandbox environment.</h1>
+    <p>This preview is used for testing the account flow before the live service is connected.</p>
+    <div class="warning"><strong>Important:</strong> avoid entering real financial information while this environment is in sandbox mode.</div>
+    <div class="actions">
+      <button class="btn btn-primary" type="button" onclick="continueToSignup()">Continue</button>
+      <button class="btn btn-primary" type="button" onclick="continueToSignup()">Next</button>
+      <a class="btn btn-secondary" href="sign in.html">I already have an account</a>
+    </div>
+  </main>
+  <script>
+    function continueToSignup() {
+      localStorage.setItem('sandboxAccepted', 'true');
+      window.location.href = 'sign up.html';
+    }
+  </script>
 </body>
 </html>
