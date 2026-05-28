@@ -25,16 +25,17 @@
     h1 { margin:0 0 10px; font-size:34px; letter-spacing:0; }
     h2 { margin:0 0 14px; font-size:20px; letter-spacing:0; }
     p { color:var(--muted); line-height:1.6; margin:0; }
+    a { color:var(--brand); font-weight:800; text-decoration:none; }
     .metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:20px; }
     .metric { background:#fff; border:1px solid var(--line); border-radius:8px; padding:18px; }
     .metric span { color:var(--muted); font-size:13px; font-weight:700; }
-    .metric strong { display:block; font-size:28px; margin-top:8px; }
+    .metric strong { display:block; font-size:25px; margin-top:8px; overflow-wrap:anywhere; }
     .chart-wrap { height:310px; position:relative; }
     canvas { width:100%; height:100%; display:block; }
     .tasks { display:grid; gap:12px; }
     .task { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:13px 0; border-bottom:1px solid var(--line); }
     .task:last-child { border-bottom:0; }
-    .status { color:#0f766e; background:#e9f7f5; border-radius:999px; padding:6px 10px; font-size:12px; font-weight:800; }
+    .status { color:#0f766e; background:#e9f7f5; border-radius:999px; padding:6px 10px; font-size:12px; font-weight:800; white-space:nowrap; }
     .referral { margin-top:20px; display:grid; gap:12px; }
     .ref-box { display:flex; gap:10px; align-items:center; background:#f8fafc; border:1px solid var(--line); border-radius:8px; padding:12px; }
     .ref-box input { flex:1; min-width:0; border:0; background:transparent; font:inherit; color:var(--ink); outline:none; }
@@ -55,32 +56,27 @@
     <section class="hero">
       <div class="panel">
         <h1 id="welcome">Welcome back</h1>
-        <p>Your client activity, order movement, and referral performance are updating in real time inside this sandbox dashboard.</p>
+        <p>Your dashboard shows progress from actual actions recorded in this browser: account creation, sign in, profile details, referral setup, and dashboard visits.</p>
       </div>
       <div class="panel">
-        <h2>Account status</h2>
-        <p>Sandbox verified. Dashboard access is active and ready for client testing.</p>
+        <h2>Customer care</h2>
+        <p>Phone: <a href="tel:+447402690551">+44 7402 690551</a><br />Email: <a href="mailto:dropshimpent.ecommerce@gmail.com">dropshimpent.ecommerce@gmail.com</a></p>
       </div>
     </section>
     <section class="metrics" aria-label="Client metrics">
-      <div class="metric"><span>Activity progress</span><strong id="progressValue">78%</strong></div>
-      <div class="metric"><span>Orders tracked</span><strong>24</strong></div>
-      <div class="metric"><span>Referral visits</span><strong>142</strong></div>
-      <div class="metric"><span>Wallet status</span><strong>Active</strong></div>
+      <div class="metric"><span>Activity progress</span><strong id="progressValue">0%</strong></div>
+      <div class="metric"><span>Recorded actions</span><strong id="actionCount">0</strong></div>
+      <div class="metric"><span>Referred by</span><strong id="referredBy">Sandra</strong></div>
+      <div class="metric"><span>Session status</span><strong id="sessionStatus">Active</strong></div>
     </section>
     <section class="hero">
       <div class="panel">
-        <h2>Live activity graph</h2>
-        <div class="chart-wrap"><canvas id="activityChart" width="900" height="320" aria-label="Live client activity progress graph"></canvas></div>
+        <h2>Real-time activity progress</h2>
+        <div class="chart-wrap"><canvas id="activityChart" width="900" height="320" aria-label="Client activity progress graph"></canvas></div>
       </div>
       <div class="panel">
-        <h2>Recent progress</h2>
-        <div class="tasks">
-          <div class="task"><span>Account profile checked</span><span class="status">Complete</span></div>
-          <div class="task"><span>Shipping activity synced</span><span class="status">Live</span></div>
-          <div class="task"><span>Referral link prepared</span><span class="status">Ready</span></div>
-          <div class="task"><span>Client dashboard reviewed</span><span class="status">Active</span></div>
-        </div>
+        <h2>Recorded activity</h2>
+        <div class="tasks" id="activityList"></div>
       </div>
     </section>
     <section class="panel referral">
@@ -93,23 +89,81 @@
     </section>
   </main>
   <script>
-    const storedName = localStorage.getItem('clientName') || 'Sandra';
-    const refName = storedName.trim() || 'Sandra';
-    document.getElementById('welcome').textContent = 'Welcome back, ' + refName;
-    document.getElementById('userPill').textContent = refName;
+    if (localStorage.getItem('signedIn') !== 'true') {
+      window.location.href = 'sign in.html';
+    }
+    const storedName = (localStorage.getItem('clientName') || 'Sandra').trim() || 'Sandra';
+    const referrer = (localStorage.getItem('referrerName') || 'Sandra').trim() || 'Sandra';
+    document.getElementById('welcome').textContent = 'Welcome back, ' + storedName;
+    document.getElementById('userPill').textContent = storedName;
+    document.getElementById('referredBy').textContent = referrer;
     const basePath = window.location.href.replace(/dashboard\.html.*$/, 'sign up.html');
-    const referralLink = basePath + '?ref=' + encodeURIComponent(refName);
+    const referralLink = basePath + '?ref=' + encodeURIComponent(storedName);
     document.getElementById('referralLink').value = referralLink;
-    document.getElementById('referralLabel').textContent = 'This referral link bears the referrer name: ' + refName + '.';
+    document.getElementById('referralLabel').textContent = 'This referral link bears the referrer name: ' + storedName + '.';
+    function getActivity() {
+      try { return JSON.parse(localStorage.getItem('activityLog') || '[]'); } catch (error) { return []; }
+    }
+    function saveActivity(activity) {
+      localStorage.setItem('activityLog', JSON.stringify(activity));
+    }
+    function currentProgress() {
+      let percent = 0;
+      if (localStorage.getItem('clientName')) percent += 20;
+      if (localStorage.getItem('clientEmail')) percent += 20;
+      if (localStorage.getItem('clientPhone')) percent += 15;
+      if (localStorage.getItem('signedIn') === 'true') percent += 25;
+      if (document.getElementById('referralLink').value) percent += 20;
+      return Math.min(percent, 100);
+    }
+    function recordVisit() {
+      const activity = getActivity();
+      const today = new Date().toISOString().slice(0, 10);
+      if (!activity.some(item => item.label === 'Dashboard opened' && item.time.slice(0, 10) === today)) {
+        activity.push({ label: 'Dashboard opened', percent: currentProgress(), time: new Date().toISOString() });
+        saveActivity(activity);
+      }
+    }
     function copyReferral() {
       const field = document.getElementById('referralLink');
       field.select();
-      navigator.clipboard && navigator.clipboard.writeText(field.value);
+      if (navigator.clipboard) navigator.clipboard.writeText(field.value);
+      const activity = getActivity();
+      activity.push({ label: 'Referral link copied', percent: currentProgress(), time: new Date().toISOString() });
+      saveActivity(activity);
+      renderDashboard();
+    }
+    function renderDashboard() {
+      const progress = currentProgress();
+      const activity = getActivity();
+      document.getElementById('progressValue').textContent = progress + '%';
+      document.getElementById('actionCount').textContent = String(activity.length);
+      document.getElementById('sessionStatus').textContent = localStorage.getItem('signedIn') === 'true' ? 'Active' : 'Signed out';
+      const list = document.getElementById('activityList');
+      list.innerHTML = '';
+      activity.slice(-6).reverse().forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'task';
+        const label = document.createElement('span');
+        label.textContent = item.label + ' - ' + new Date(item.time).toLocaleString();
+        const status = document.createElement('span');
+        status.className = 'status';
+        status.textContent = item.percent + '%';
+        row.appendChild(label);
+        row.appendChild(status);
+        list.appendChild(row);
+      });
+      if (!activity.length) {
+        const row = document.createElement('div');
+        row.className = 'task';
+        row.innerHTML = '<span>No activity recorded yet.</span><span class="status">0%</span>';
+        list.appendChild(row);
+      }
+      drawChart(activity, progress);
     }
     const canvas = document.getElementById('activityChart');
     const ctx = canvas.getContext('2d');
-    let frame = 0;
-    function drawChart() {
+    function drawChart(activity, progress) {
       const w = canvas.width;
       const h = canvas.height;
       ctx.clearRect(0, 0, w, h);
@@ -124,10 +178,11 @@
         ctx.lineTo(w - 22, y);
         ctx.stroke();
       }
-      const points = [42, 50, 58, 64, 69, 73, 78, 82, 80, 86, 89, 92].map((value, index) => value + Math.sin((frame + index * 10) / 22) * 4);
+      const points = activity.length ? activity.map(item => Number(item.percent) || 0) : [progress];
+      if (points[points.length - 1] !== progress) points.push(progress);
       ctx.beginPath();
       points.forEach((value, index) => {
-        const x = 52 + index * ((w - 92) / (points.length - 1));
+        const x = points.length === 1 ? w / 2 : 52 + index * ((w - 92) / (points.length - 1));
         const y = h - 42 - (value / 100) * (h - 84);
         if (index === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
       });
@@ -135,19 +190,17 @@
       ctx.lineWidth = 4;
       ctx.stroke();
       points.forEach((value, index) => {
-        const x = 52 + index * ((w - 92) / (points.length - 1));
+        const x = points.length === 1 ? w / 2 : 52 + index * ((w - 92) / (points.length - 1));
         const y = h - 42 - (value / 100) * (h - 84);
         ctx.fillStyle = '#14b8a6';
         ctx.beginPath();
         ctx.arc(x, y, 5, 0, Math.PI * 2);
         ctx.fill();
       });
-      const latest = Math.round(points[points.length - 1]);
-      document.getElementById('progressValue').textContent = latest + '%';
-      frame++;
-      requestAnimationFrame(drawChart);
     }
-    drawChart();
+    recordVisit();
+    renderDashboard();
+    setInterval(renderDashboard, 1000);
   </script>
 </body>
 </html>
