@@ -19,11 +19,15 @@
     .stat { border:1px solid rgba(255,255,255,.22); border-radius:8px; padding:18px; background:rgba(255,255,255,.1); }
     .stat strong { display:block; font-size:24px; }
     .stat span { color:rgba(255,255,255,.76); font-size:13px; }
+    .support { margin-top:34px; color:rgba(255,255,255,.86); line-height:1.7; }
+    .support a { color:#fff; font-weight:800; text-decoration:none; }
     .auth { display:grid; place-items:center; padding:32px; }
     .card { width:min(480px,100%); background:#fff; border:1px solid var(--line); border-radius:8px; box-shadow:var(--shadow); padding:34px; }
     .eyebrow { color:var(--brand); font-weight:800; font-size:13px; text-transform:uppercase; letter-spacing:0; }
     h2 { margin:10px 0 8px; font-size:30px; letter-spacing:0; }
-    .hint { color:var(--muted); line-height:1.6; margin:0 0 24px; }
+    .hint, .message { color:var(--muted); line-height:1.6; margin:0 0 24px; }
+    .message { margin:14px 0 0; font-weight:700; }
+    .message.error { color:#b42318; }
     label { display:block; margin:14px 0 7px; color:#344054; font-weight:700; font-size:14px; }
     input { width:100%; border:1px solid var(--line); border-radius:6px; padding:13px 14px; font:inherit; outline:none; background:#fff; }
     input:focus { border-color:var(--brand); box-shadow:0 0 0 4px rgba(23,105,224,.12); }
@@ -45,39 +49,64 @@
       <div class="stat"><strong>UK</strong><span>Dropshipping support</span></div>
       <div class="stat"><strong>Live</strong><span>Progress tracking</span></div>
     </div>
+    <p class="support">Customer care: <a href="tel:+447402690551">+44 7402 690551</a><br />Email: <a href="mailto:dropshimpent.ecommerce@gmail.com">dropshimpent.ecommerce@gmail.com</a></p>
   </section>
   <main class="auth">
     <form class="card" id="signupForm">
       <div class="eyebrow">Create account</div>
       <h2>Sign up</h2>
-      <p class="hint">Use your details to create a sandbox account and continue to the dashboard.</p>
+      <p class="hint">Create an account for this website preview and continue to the dashboard.</p>
       <label for="name">Full name</label>
       <input id="name" name="name" autocomplete="name" required placeholder="Your name" />
       <label for="email">Email address</label>
       <input id="email" name="email" type="email" autocomplete="email" required placeholder="you@example.com" />
       <label for="phone">Phone number</label>
-      <input id="phone" name="phone" type="tel" autocomplete="tel" required placeholder="+44 7000 000000" />
+      <input id="phone" name="phone" type="tel" autocomplete="tel" required placeholder="+44 7402 690551" />
       <label for="password">Password</label>
       <input id="password" name="password" type="password" autocomplete="new-password" required minlength="4" placeholder="Create a password" />
       <label for="referrer">Referred by</label>
       <input id="referrer" name="referrer" placeholder="Sandra" />
       <button class="btn btn-primary" type="submit">Create account</button>
+      <p class="message" id="message" role="status"></p>
       <p class="switch">Already have an account? <a href="sign in.html">Sign in</a></p>
     </form>
   </main>
   <script>
     const params = new URLSearchParams(window.location.search);
     const referrer = params.get('ref') || localStorage.getItem('referrerName') || 'Sandra';
+    const message = document.getElementById('message');
     document.getElementById('referrer').value = referrer;
+    function getAccounts() {
+      try { return JSON.parse(localStorage.getItem('accounts') || '[]'); } catch (error) { return []; }
+    }
+    function logActivity(label, percent) {
+      const activity = JSON.parse(localStorage.getItem('activityLog') || '[]');
+      activity.push({ label: label, percent: percent, time: new Date().toISOString() });
+      localStorage.setItem('activityLog', JSON.stringify(activity));
+    }
     document.getElementById('signupForm').addEventListener('submit', function (event) {
       event.preventDefault();
-      const fullName = document.getElementById('name').value.trim() || 'Sandra';
-      const email = document.getElementById('email').value.trim();
+      const fullName = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim().toLowerCase();
+      const phone = document.getElementById('phone').value.trim();
+      const password = document.getElementById('password').value;
       const referredBy = document.getElementById('referrer').value.trim() || 'Sandra';
+      const accounts = getAccounts();
+      if (accounts.some(account => account.email === email)) {
+        message.textContent = 'This email already has an account. Please sign in.';
+        message.className = 'message error';
+        return;
+      }
+      const account = { fullName: fullName, email: email, phone: phone, password: password, referredBy: referredBy, createdAt: new Date().toISOString() };
+      accounts.push(account);
+      localStorage.setItem('accounts', JSON.stringify(accounts));
       localStorage.setItem('clientName', fullName);
       localStorage.setItem('clientEmail', email);
+      localStorage.setItem('clientPhone', phone);
       localStorage.setItem('referrerName', referredBy);
       localStorage.setItem('signedIn', 'true');
+      logActivity('Account created', 35);
+      logActivity('Profile completed', 70);
       window.location.href = 'dashboard.html';
     });
   </script>
