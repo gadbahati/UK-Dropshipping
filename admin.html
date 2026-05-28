@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Control | Globalpack Shipping</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root { --ink:#172033; --muted:#667085; --line:#d8e0ea; --brand:#1769e0; --brand-dark:#0f4fb0; --accent:#14b8a6; --danger:#b42318; --soft:#f4f7fb; --white:#fff; --shadow:0 18px 50px rgba(23,32,51,.1); }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; font-family:Inter,Arial,sans-serif; color:var(--ink); background:#f4f7fb; }
+    .topbar { height:72px; display:flex; align-items:center; justify-content:space-between; gap:16px; padding:0 28px; background:#fff; border-bottom:1px solid var(--line); position:sticky; top:0; z-index:10; }
+    .brand { font-weight:900; font-size:19px; } .nav { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    a,.link { color:var(--brand); font-weight:900; text-decoration:none; } .btn { border:0; border-radius:6px; padding:10px 12px; font-weight:900; cursor:pointer; background:var(--brand); color:#fff; } .btn:hover { background:var(--brand-dark); } .btn.light { background:#eef4ff; color:var(--brand); } .btn.danger { background:#fff1f1; color:var(--danger); }
+    .layout { width:min(1280px,100%); margin:0 auto; padding:28px; }
+    .hero,.panel,.metric { background:#fff; border:1px solid var(--line); border-radius:8px; box-shadow:var(--shadow); padding:22px; }
+    .hero { background:#10294e; color:#fff; margin-bottom:20px; } .hero p { color:rgba(255,255,255,.78); }
+    h1 { margin:0 0 10px; font-size:34px; letter-spacing:0; } h2 { margin:0 0 14px; font-size:20px; letter-spacing:0; } p { margin:0; color:var(--muted); line-height:1.6; }
+    .metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:20px; } .metric span { color:var(--muted); font-size:13px; font-weight:800; } .metric strong { display:block; font-size:26px; margin-top:7px; }
+    .filters { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:16px; } select,input,textarea { border:1px solid var(--line); border-radius:6px; padding:10px 12px; font:inherit; background:#fff; } textarea { width:100%; min-height:76px; resize:vertical; margin-top:8px; }
+    .table-wrap { overflow:auto; border:1px solid var(--line); border-radius:8px; background:#fff; } table { width:100%; border-collapse:collapse; min-width:1060px; } th,td { padding:12px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; font-size:14px; } th { background:#f8fafc; color:#344054; font-size:12px; text-transform:uppercase; letter-spacing:0; } tr:last-child td { border-bottom:0; }
+    .tag { display:inline-flex; border-radius:999px; padding:5px 9px; font-weight:900; font-size:12px; background:#eef4ff; color:var(--brand); } .tag.pending { background:#fff8e8; color:#92400e; } .tag.approved { background:#e9f7f5; color:#0f766e; } .tag.denied { background:#fff1f1; color:#b42318; }
+    .actions { display:flex; gap:8px; flex-wrap:wrap; } .stack { display:grid; gap:8px; }
+    @media (max-width:900px) { .metrics { grid-template-columns:1fr; } .layout { padding:18px; } .topbar { height:auto; padding:16px; align-items:flex-start; flex-direction:column; } }
+  </style>
+</head>
+<body>
+  <header class="topbar"><div class="brand">Admin Control</div><nav class="nav"><a href="dashboard.html">Dashboard</a><a href="Menu.html">Menu</a><button class="btn danger" onclick="signOutAdmin()">Sign out</button></nav></header>
+  <main class="layout">
+    <section class="hero"><h1>Master admin panel</h1><p>Review users, roles, package payments, referral source, payment approvals, account activation, and withdrawal decisions.</p></section>
+    <section class="metrics"><div class="metric"><span>Total users</span><strong id="totalUsers">0</strong></div><div class="metric"><span>Pending actions</span><strong id="pendingActions">0</strong></div><div class="metric"><span>Approved actions</span><strong id="approvedActions">0</strong></div><div class="metric"><span>Denied actions</span><strong id="deniedActions">0</strong></div></section>
+    <section class="panel"><h2>User role management</h2><div class="filters"><label for="roleFilter">Filter role</label><select id="roleFilter" onchange="renderAdmin()"></select><button class="btn light" onclick="seedAdminData()">Load saved users</button></div><div class="table-wrap"><table><thead><tr><th>User</th><th>Role</th><th>Joined through</th><th>Package / Amount</th><th>Status</th><th>Set Role</th><th>Controls</th></tr></thead><tbody id="usersTable"></tbody></table></div></section>
+    <section class="panel" style="margin-top:20px"><h2>Manual approval workflow</h2><div class="table-wrap"><table><thead><tr><th>Request</th><th>User</th><th>Role</th><th>Amount</th><th>Details</th><th>Status</th><th>Admin Decision</th></tr></thead><tbody id="requestsTable"></tbody></table></div></section>
+  </main>
+  <script>
+    const ADMIN_EMAIL = 'dropshimpent.ecommerce@gmail.com';
+    const ROLES = ['Subscriber','AGENT','Booking','Agent Verification','Basic','Complete','Standard booked','Membership','Verified','Withdrawal fee','Upgrade to Premium'];
+    if (localStorage.getItem('adminSession') !== ADMIN_EMAIL) window.location.href = 'index.html';
+    function readJson(key, fallback) { try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); } catch (error) { return fallback; } }
+    function writeJson(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
+    function getAccounts() { return readJson('accounts', []); }
+    function saveAccounts(accounts) { writeJson('accounts', accounts); }
+    function getRequests() { return readJson('adminRequests', []); }
+    function saveRequests(requests) { writeJson('adminRequests', requests); }
+    function signOutAdmin() { localStorage.removeItem('adminSession'); localStorage.removeItem('signedIn'); window.location.href = 'index.html'; }
+    function escapeHtml(value) { return String(value || '').replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char])); }
+    function seedAdminData() { renderAdmin(); }
+    function setUserRole(email, role) { const accounts = getAccounts().map(account => account.email === email ? {...account, role: role} : account); saveAccounts(accounts); renderAdmin(); }
+    function updateAccountStatus(email, status) { const accounts = getAccounts().map(account => account.email === email ? {...account, accountStatus: status} : account); saveAccounts(accounts); renderAdmin(); }
+    function approveRequest(id) { const requests = getRequests().map(req => req.id === id ? {...req, status:'Approved', denialReason:'', decidedAt:new Date().toISOString()} : req); saveRequests(requests); const request = requests.find(req => req.id === id); if (request && request.type === 'Account activation') updateAccountStatus(request.userEmail, 'Active'); else renderAdmin(); }
+    function activateUser(email) { updateAccountStatus(email, 'Active'); const account = getAccounts().find(item => item.email === email); const requests = getRequests(); requests.push({ id:'REQ-' + Date.now(), userEmail:email, userName:account ? account.fullName : email, role:account ? account.role : 'Subscriber', type:'Manual activation', amount:account ? Number(account.paymentAmount || 0) : 0, details:'Account activated manually by admin.', status:'Approved', denialReason:'', createdAt:new Date().toISOString(), decidedAt:new Date().toISOString() }); saveRequests(requests); renderAdmin(); }
+    function denyRequest(id) { const reason = document.getElementById('deny-' + id).value.trim(); if (!reason) { alert('Reason for denial is required.'); return; } const requests = getRequests().map(req => req.id === id ? {...req, status:'Denied', denialReason:reason, decidedAt:new Date().toISOString()} : req); saveRequests(requests); renderAdmin(); }
+    function renderRoleFilter() { const filter = document.getElementById('roleFilter'); if (filter.options.length) return; filter.innerHTML = '<option value="All">All roles</option>' + ROLES.map(role => '<option value="' + escapeHtml(role) + '">' + escapeHtml(role) + '</option>').join(''); }
+    function renderUsers(accounts) { const selectedRole = document.getElementById('roleFilter').value || 'All'; const rows = accounts.filter(account => selectedRole === 'All' || account.role === selectedRole).map(account => { const roleOptions = ROLES.map(role => '<option value="' + escapeHtml(role) + '" ' + (account.role === role ? 'selected' : '') + '>' + escapeHtml(role) + '</option>').join(''); return '<tr><td><strong>' + escapeHtml(account.fullName) + '</strong><br>' + escapeHtml(account.email) + '<br>' + escapeHtml(account.phone) + '</td><td><span class="tag">' + escapeHtml(account.role || 'Subscriber') + '</span></td><td>' + escapeHtml(account.joinedMessage || (account.fullName + ' joined using ' + (account.referredBy || 'Sandra') + "'s link")) + '</td><td>' + escapeHtml(account.packageName || 'Not selected') + '<br><strong>GBP ' + Number(account.paymentAmount || 0).toLocaleString('en-GB') + '</strong></td><td>' + escapeHtml(account.accountStatus || 'Pending') + '<br>' + escapeHtml(account.paymentStatus || 'Submitted for review') + '</td><td><select onchange="setUserRole(\'' + escapeHtml(account.email) + '\', this.value)">' + roleOptions + '</select></td><td class="actions"><button class="btn" onclick="activateUser(\'' + escapeHtml(account.email) + '\')">Activate</button><button class="btn light" onclick="updateAccountStatus(\'' + escapeHtml(account.email) + '\', ' + "'Pending admin approval'" + ')">Hold</button></td></tr>'; }).join(''); document.getElementById('usersTable').innerHTML = rows || '<tr><td colspan="7">No users found for this role.</td></tr>'; }
+    function statusClass(status) { if (status === 'Approved') return 'approved'; if (status === 'Denied') return 'denied'; return 'pending'; }
+    function renderRequests(requests) { const rows = requests.slice().reverse().map(req => '<tr><td><strong>' + escapeHtml(req.type) + '</strong><br>' + escapeHtml(req.id) + '<br>' + new Date(req.createdAt).toLocaleString() + '</td><td>' + escapeHtml(req.userName) + '<br>' + escapeHtml(req.userEmail) + '</td><td><span class="tag">' + escapeHtml(req.role || 'Subscriber') + '</span></td><td>GBP ' + Number(req.amount || 0).toLocaleString('en-GB') + '</td><td>' + escapeHtml(req.details) + (req.denialReason ? '<br><strong>Denied reason:</strong> ' + escapeHtml(req.denialReason) : '') + '</td><td><span class="tag ' + statusClass(req.status) + '">' + escapeHtml(req.status) + '</span></td><td><div class="stack"><div class="actions"><button class="btn" onclick="approveRequest(\'' + escapeHtml(req.id) + '\')">Approve</button><button class="btn light" onclick="approveRequest(\'' + escapeHtml(req.id) + '\')">Activate</button></div><textarea id="deny-' + escapeHtml(req.id) + '" placeholder="Reason for denial is required"></textarea><button class="btn danger" onclick="denyRequest(\'' + escapeHtml(req.id) + '\')">Deny</button></div></td></tr>').join(''); document.getElementById('requestsTable').innerHTML = rows || '<tr><td colspan="7">No admin requests yet.</td></tr>'; }
+    function renderAdmin() { renderRoleFilter(); const accounts = getAccounts(); const requests = getRequests(); document.getElementById('totalUsers').textContent = String(accounts.length); document.getElementById('pendingActions').textContent = String(requests.filter(req => req.status === 'Pending').length); document.getElementById('approvedActions').textContent = String(requests.filter(req => req.status === 'Approved').length); document.getElementById('deniedActions').textContent = String(requests.filter(req => req.status === 'Denied').length); renderUsers(accounts); renderRequests(requests); }
+    renderAdmin();
+  </script>
+</body>
+</html>
