@@ -29,8 +29,8 @@
     .message { margin:14px 0 0; font-weight:700; }
     .message.error { color:#b42318; }
     label { display:block; margin:14px 0 7px; color:#344054; font-weight:700; font-size:14px; }
-    input { width:100%; border:1px solid var(--line); border-radius:6px; padding:13px 14px; font:inherit; outline:none; background:#fff; }
-    input:focus { border-color:var(--brand); box-shadow:0 0 0 4px rgba(23,105,224,.12); }
+    input, select { width:100%; border:1px solid var(--line); border-radius:6px; padding:13px 14px; font:inherit; outline:none; background:#fff; }
+    input:focus, select:focus { border-color:var(--brand); box-shadow:0 0 0 4px rgba(23,105,224,.12); }
     .btn { width:100%; border:0; border-radius:6px; padding:14px 18px; min-height:48px; font-weight:800; font-size:15px; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; }
     .btn-primary { background:var(--brand); color:#fff; margin-top:22px; box-shadow:0 14px 28px rgba(23,105,224,.24); }
     .btn-primary:hover { background:var(--brand-dark); }
@@ -55,13 +55,20 @@
     <form class="card" id="signupForm">
       <div class="eyebrow">Create account</div>
       <h2>Sign up</h2>
-      <p class="hint">Create an account for this website preview and continue to the dashboard.</p>
+      <p class="hint">Create an account and submit it for admin activation.</p>
       <label for="name">Full name</label>
       <input id="name" name="name" autocomplete="name" required placeholder="Your name" />
       <label for="email">Email address</label>
       <input id="email" name="email" type="email" autocomplete="email" required placeholder="you@example.com" />
       <label for="phone">Phone number</label>
       <input id="phone" name="phone" type="tel" autocomplete="tel" required placeholder="+44 7402 690551" />
+      <label for="package">Package</label>
+      <select id="package" name="package">
+        <option value="Basic" data-amount="50">Basic - GBP 50</option>
+        <option value="Complete" data-amount="150">Complete - GBP 150</option>
+        <option value="Membership" data-amount="250">Membership - GBP 250</option>
+        <option value="Upgrade to Premium" data-amount="500">Upgrade to Premium - GBP 500</option>
+      </select>
       <label for="password">Password</label>
       <input id="password" name="password" type="password" autocomplete="new-password" required minlength="4" placeholder="Create a password" />
       <label for="referrer">Referred by</label>
@@ -79,10 +86,31 @@
     function getAccounts() {
       try { return JSON.parse(localStorage.getItem('accounts') || '[]'); } catch (error) { return []; }
     }
+    function saveAccounts(accounts) { localStorage.setItem('accounts', JSON.stringify(accounts)); }
+    function getRequests() {
+      try { return JSON.parse(localStorage.getItem('adminRequests') || '[]'); } catch (error) { return []; }
+    }
+    function saveRequests(requests) { localStorage.setItem('adminRequests', JSON.stringify(requests)); }
     function logActivity(label, percent) {
       const activity = JSON.parse(localStorage.getItem('activityLog') || '[]');
       activity.push({ label: label, percent: percent, time: new Date().toISOString() });
       localStorage.setItem('activityLog', JSON.stringify(activity));
+    }
+    function createRequest(account, type, amount, details) {
+      const requests = getRequests();
+      requests.push({
+        id: 'REQ-' + Date.now(),
+        userEmail: account.email,
+        userName: account.fullName,
+        role: account.role,
+        type: type,
+        amount: amount,
+        details: details,
+        status: 'Pending',
+        denialReason: '',
+        createdAt: new Date().toISOString()
+      });
+      saveRequests(requests);
     }
     document.getElementById('signupForm').addEventListener('submit', function (event) {
       event.preventDefault();
@@ -90,6 +118,10 @@
       const email = document.getElementById('email').value.trim().toLowerCase();
       const phone = document.getElementById('phone').value.trim();
       const password = document.getElementById('password').value;
+      const packageField = document.getElementById('package');
+      const selectedOption = packageField.options[packageField.selectedIndex];
+      const packageName = packageField.value;
+      const paymentAmount = Number(selectedOption.dataset.amount || 0);
       const referredBy = document.getElementById('referrer').value.trim() || 'Sandra';
       const accounts = getAccounts();
       if (accounts.some(account => account.email === email)) {
@@ -97,9 +129,24 @@
         message.className = 'message error';
         return;
       }
-      const account = { fullName: fullName, email: email, phone: phone, password: password, referredBy: referredBy, createdAt: new Date().toISOString() };
+      const account = {
+        id: 'USR-' + Date.now(),
+        fullName: fullName,
+        email: email,
+        phone: phone,
+        password: password,
+        role: 'Subscriber',
+        packageName: packageName,
+        paymentAmount: paymentAmount,
+        accountStatus: 'Pending admin approval',
+        paymentStatus: 'Submitted for review',
+        referredBy: referredBy,
+        joinedMessage: fullName + ' joined using ' + referredBy + "'s link",
+        createdAt: new Date().toISOString()
+      };
       accounts.push(account);
-      localStorage.setItem('accounts', JSON.stringify(accounts));
+      saveAccounts(accounts);
+      createRequest(account, 'Account activation', paymentAmount, account.joinedMessage + '. Package: ' + packageName + '.');
       localStorage.setItem('clientName', fullName);
       localStorage.setItem('clientEmail', email);
       localStorage.setItem('clientPhone', phone);
