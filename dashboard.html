@@ -6,59 +6,177 @@
   <title>Dashboard | Globalpack Shipping</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <style>
-    :root { --ink:#172033; --muted:#667085; --line:#d8e0ea; --brand:#1769e0; --brand-dark:#0f4fb0; --accent:#14b8a6; --soft:#f4f7fb; --white:#fff; --shadow:0 18px 50px rgba(23,32,51,.1); }
+    :root { --ink:#172033; --muted:#667085; --line:#d8e0ea; --brand:#1769e0; --brand-dark:#0f4fb0; --accent:#14b8a6; --soft:#f4f7fb; --white:#fff; --warning:#fff8e8; --shadow:0 18px 50px rgba(23,32,51,.1); }
     * { box-sizing:border-box; }
     body { margin:0; min-height:100vh; font-family:Inter,Arial,sans-serif; color:var(--ink); background:#f4f7fb; }
-    .topbar { height:72px; display:flex; align-items:center; gap:16px; justify-content:space-between; padding:0 28px; background:#fff; border-bottom:1px solid var(--line); position:sticky; top:0; z-index:10; }
-    .left { display:flex; align-items:center; gap:14px; min-width:0; }
+    .topbar { min-height:72px; display:flex; align-items:center; gap:16px; justify-content:space-between; padding:12px 28px; background:#fff; border-bottom:1px solid var(--line); position:sticky; top:0; z-index:10; }
+    .left,.right,.brand-wrap,.balance-line { display:flex; align-items:center; gap:14px; min-width:0; }
     .menu-button { width:44px; height:44px; border:1px solid var(--line); border-radius:6px; background:#fff; display:grid; place-items:center; cursor:pointer; text-decoration:none; flex:0 0 auto; }
     .menu-button span, .menu-button span:before, .menu-button span:after { display:block; width:20px; height:2px; background:var(--ink); content:""; border-radius:2px; }
     .menu-button span:before { transform:translateY(-6px); } .menu-button span:after { transform:translateY(4px); }
-    .brand { font-weight:800; font-size:19px; white-space:nowrap; }
-    .user-pill { background:#e9f7f5; color:#0f766e; border-radius:999px; padding:9px 13px; font-weight:800; font-size:13px; white-space:nowrap; }
-    .layout { width:min(1180px,100%); margin:0 auto; padding:28px; }
-    .hero { display:grid; grid-template-columns:1.2fr .8fr; gap:20px; margin-bottom:20px; }
-    .panel,.metric { background:#fff; border:1px solid var(--line); border-radius:8px; box-shadow:var(--shadow); padding:24px; }
-    h1 { margin:0 0 10px; font-size:34px; letter-spacing:0; } h2 { margin:0 0 14px; font-size:20px; letter-spacing:0; }
-    p { color:var(--muted); line-height:1.6; margin:0; } a { color:var(--brand); font-weight:800; text-decoration:none; }
-    .metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:20px; }
-    .metric span { color:var(--muted); font-size:13px; font-weight:700; } .metric strong { display:block; font-size:25px; margin-top:8px; overflow-wrap:anywhere; }
+    .brand { font-weight:900; font-size:19px; white-space:nowrap; }
+    .uk-flag { position:relative; width:38px; height:38px; border-radius:50%; overflow:hidden; flex:0 0 auto; box-shadow:0 6px 16px rgba(23,32,51,.18), inset 0 3px 8px rgba(255,255,255,.35); background:linear-gradient(90deg, transparent 41%, #c8102e 41%, #c8102e 59%, transparent 59%),linear-gradient(180deg, transparent 41%, #c8102e 41%, #c8102e 59%, transparent 59%),linear-gradient(90deg, transparent 34%, #fff 34%, #fff 66%, transparent 66%),linear-gradient(180deg, transparent 34%, #fff 34%, #fff 66%, transparent 66%),linear-gradient(35deg, transparent 43%, #fff 43%, #fff 47%, #c8102e 47%, #c8102e 53%, #fff 53%, #fff 57%, transparent 57%),linear-gradient(-35deg, transparent 43%, #fff 43%, #fff 47%, #c8102e 47%, #c8102e 53%, #fff 53%, #fff 57%, transparent 57%),#012169; }
+    .uk-flag:after { content:""; position:absolute; inset:0; background:linear-gradient(135deg,rgba(255,255,255,.55),transparent 45%,rgba(0,0,0,.18)); }
+    .user-pill { background:#e9f7f5; color:#0f766e; border-radius:999px; padding:9px 13px; font-weight:900; font-size:13px; white-space:nowrap; }
+    .layout { width:min(1220px,100%); margin:0 auto; padding:28px; }
+    .hero,.two-col,.metrics,.quick-grid,.request-grid,.menu-grid { display:grid; gap:16px; }
+    .hero { grid-template-columns:1.2fr .8fr; margin-bottom:20px; }
+    .two-col,.request-grid { grid-template-columns:1fr 1fr; }
+    .metrics { grid-template-columns:repeat(4,1fr); margin-bottom:20px; }
+    .quick-grid,.menu-grid { grid-template-columns:repeat(4,1fr); }
+    .panel,.metric,.quick-action,.menu-item { background:#fff; border:1px solid var(--line); border-radius:8px; box-shadow:var(--shadow); padding:24px; }
+    .dark { background:#10294e; color:#fff; } .dark p { color:rgba(255,255,255,.78); }
+    h1 { margin:0 0 10px; font-size:34px; letter-spacing:0; } h2 { margin:0 0 14px; font-size:20px; letter-spacing:0; } h3 { margin:0 0 8px; font-size:16px; letter-spacing:0; }
+    p { color:var(--muted); line-height:1.6; margin:0; } a { color:var(--brand); font-weight:900; text-decoration:none; }
+    .metric span { color:var(--muted); font-size:13px; font-weight:800; } .metric strong { display:block; font-size:25px; margin-top:8px; overflow-wrap:anywhere; }
+    .paybill { background:var(--warning); border-color:#f4d28f; } .paybill strong { color:#92400e; }
     .chart-wrap { height:310px; position:relative; } canvas { width:100%; height:100%; display:block; }
     .tasks { display:grid; gap:12px; } .task { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:13px 0; border-bottom:1px solid var(--line); }
-    .task:last-child { border-bottom:0; } .status { color:#0f766e; background:#e9f7f5; border-radius:999px; padding:6px 10px; font-size:12px; font-weight:800; white-space:nowrap; }
-    .referral,.request-grid { margin-top:20px; display:grid; gap:12px; } .request-grid { grid-template-columns:1fr 1fr; }
-    .ref-box { display:flex; gap:10px; align-items:center; background:#f8fafc; border:1px solid var(--line); border-radius:8px; padding:12px; }
+    .task:last-child { border-bottom:0; } .status { color:#0f766e; background:#e9f7f5; border-radius:999px; padding:6px 10px; font-size:12px; font-weight:900; white-space:nowrap; }
+    .quick-action,.menu-item { display:block; color:var(--ink); text-decoration:none; transition:transform .18s ease,border-color .18s ease; }
+    .quick-action:hover,.menu-item:hover { transform:translateY(-2px); border-color:rgba(23,105,224,.4); }
+    .icon { width:42px; height:42px; border-radius:8px; display:grid; place-items:center; background:#e9f2ff; color:var(--brand); font-weight:900; margin-bottom:14px; }
+    .referral { margin-top:20px; display:grid; gap:12px; }
+    .ref-box,.filters { display:flex; gap:10px; align-items:center; }
+    .ref-box { background:#f8fafc; border:1px solid var(--line); border-radius:8px; padding:12px; }
     .ref-box input { flex:1; min-width:0; border:0; background:transparent; font:inherit; color:var(--ink); outline:none; }
-    label { display:block; color:#344054; font-weight:800; font-size:13px; margin:12px 0 7px; }
-    input,select { width:100%; border:1px solid var(--line); border-radius:6px; padding:12px; font:inherit; }
-    .btn { border:0; border-radius:6px; padding:12px 14px; min-height:42px; font-weight:800; cursor:pointer; background:var(--brand); color:#fff; white-space:nowrap; }
-    .btn:hover { background:var(--brand-dark); }
-    .message { color:#0f766e; font-weight:800; margin-top:10px; }
-    .withdrawal-toast { position:fixed; right:24px; bottom:24px; width:min(390px,calc(100vw - 32px)); display:grid; grid-template-columns:auto 1fr auto; gap:14px; align-items:start; background:#fff; border:1px solid var(--line); border-left:4px solid var(--accent); border-radius:8px; box-shadow:0 24px 70px rgba(23,32,51,.18); padding:16px; z-index:40; transform:translateY(28px); opacity:0; pointer-events:none; transition:opacity .25s ease, transform .25s ease; }
-    .withdrawal-toast.show { opacity:1; transform:translateY(0); pointer-events:auto; } .toast-icon { width:42px; height:42px; border-radius:8px; display:grid; place-items:center; background:#e9f7f5; color:#0f766e; font-weight:900; }
-    .toast-kicker { color:#0f766e; font-size:12px; font-weight:900; text-transform:uppercase; margin-bottom:4px; } .toast-title { color:var(--ink); font-weight:800; line-height:1.35; margin:0 0 4px; } .toast-meta { color:var(--muted); font-size:13px; line-height:1.45; margin:0; } .toast-close { border:0; background:#f2f5f9; color:var(--ink); width:28px; height:28px; border-radius:6px; cursor:pointer; font-weight:900; }
-    @media (max-width:860px) { .hero,.metrics,.request-grid { grid-template-columns:1fr; } .topbar { padding:0 18px; } .layout { padding:20px; } .user-pill { display:none; } h1 { font-size:28px; } .ref-box { flex-direction:column; align-items:stretch; } .withdrawal-toast { right:16px; bottom:16px; } }
+    label { display:block; color:#344054; font-weight:900; font-size:13px; margin:12px 0 7px; }
+    input,select { width:100%; border:1px solid var(--line); border-radius:6px; padding:12px; font:inherit; background:#fff; }
+    .btn { border:0; border-radius:6px; padding:12px 14px; min-height:42px; font-weight:900; cursor:pointer; background:var(--brand); color:#fff; white-space:nowrap; text-decoration:none; display:inline-flex; justify-content:center; align-items:center; }
+    .btn:hover { background:var(--brand-dark); } .btn.secondary { background:#fff; color:var(--ink); border:1px solid var(--line); }
+    .message { color:#0f766e; font-weight:900; margin-top:10px; }
+    .table-wrap { overflow:auto; border:1px solid var(--line); border-radius:8px; background:#fff; }
+    table { width:100%; border-collapse:collapse; min-width:720px; } th,td { padding:12px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; font-size:14px; } th { background:#f8fafc; color:#344054; font-size:12px; text-transform:uppercase; letter-spacing:0; } tr:last-child td { border-bottom:0; }
+    .section-gap { margin-top:20px; }
+    @media (max-width:900px) { .hero,.two-col,.metrics,.request-grid,.quick-grid,.menu-grid { grid-template-columns:1fr; } .topbar { padding:12px 18px; } .right { display:none; } .layout { padding:20px; } h1 { font-size:28px; } .ref-box,.filters { flex-direction:column; align-items:stretch; } }
   </style>
 </head>
 <body>
-  <header class="topbar"><div class="left"><a class="menu-button" href="Menu.html" aria-label="Open menu"><span></span></a><div class="brand">Globalpack Shipping</div></div><div class="user-pill" id="userPill">Client</div></header>
+  <header class="topbar">
+    <div class="left">
+      <a class="menu-button" href="Menu.html" aria-label="Open menu"><span></span></a>
+      <div class="brand-wrap"><span class="uk-flag" aria-label="United Kingdom flag"></span><div class="brand">Globalpack Shipping</div></div>
+    </div>
+    <div class="right"><div class="user-pill" id="userPill">Client</div></div>
+  </header>
   <main class="layout">
-    <section class="hero"><div class="panel"><h1 id="welcome">Welcome back</h1><p>Your dashboard shows actions recorded for your account and submits payment or withdrawal requests to Admin Control for manual approval.</p></div><div class="panel"><h2>Customer care</h2><p>Phone: <a href="tel:+447402690551">+44 7402 690551</a><br />Email: <a href="mailto:dropshimpent.ecommerce@gmail.com">dropshimpent.ecommerce@gmail.com</a></p></div></section>
-    <section class="metrics"><div class="metric"><span>Activity progress</span><strong id="progressValue">0%</strong></div><div class="metric"><span>Account status</span><strong id="accountStatus">Pending</strong></div><div class="metric"><span>Role</span><strong id="roleValue">Subscriber</strong></div><div class="metric"><span>Package amount</span><strong id="paymentValue">GBP 0</strong></div></section>
-    <section class="hero"><div class="panel"><h2>Real-time activity progress</h2><div class="chart-wrap"><canvas id="activityChart" width="900" height="320"></canvas></div></div><div class="panel"><h2>Recorded activity</h2><div class="tasks" id="activityList"></div></div></section>
-    <section class="request-grid">
-      <form class="panel" id="paymentForm"><h2>Submit payment for admin approval</h2><p id="joinedMessage">Referral source will appear here.</p><label for="paymentAmount">Payment amount GBP</label><input id="paymentAmount" type="number" min="1" step="1" required /><button class="btn" type="submit">Request payment approval</button><p class="message" id="paymentMessage"></p></form>
-      <form class="panel" id="withdrawalForm"><h2>Request withdrawal</h2><p>Withdrawals require admin approval. A denied withdrawal will include a saved reason.</p><label for="withdrawalAmount">Withdrawal amount GBP</label><input id="withdrawalAmount" type="number" min="1" step="1" required /><button class="btn" type="submit">Request withdrawal</button><p class="message" id="withdrawalMessage"></p></form>
+    <section class="hero">
+      <div class="panel dark">
+        <h1 id="welcome">Welcome back</h1>
+        <p>Your dashboard records account actions, deposits, bookings, referrals, and withdrawal requests for admin approval.</p>
+      </div>
+      <div class="panel paybill">
+        <h2>M-Pesa deposit method</h2>
+        <p><strong>Paybill:</strong> 998608<br /><strong>Account number:</strong> 254740018926</p>
+      </div>
     </section>
-    <section class="panel referral"><h2>Referral link</h2><p id="referralLabel">Share your personal referral link.</p><div class="ref-box"><input id="referralLink" readonly /><button class="btn" type="button" onclick="copyReferral()">Copy link</button></div></section>
+
+    <section class="metrics">
+      <div class="metric"><span>Deposit balance</span><strong id="depositBalance">KES 0.00</strong></div>
+      <div class="metric"><span>Wallet balance</span><strong id="walletBalance">KES 0.00</strong></div>
+      <div class="metric"><span>Account status</span><strong id="accountStatus">Pending</strong></div>
+      <div class="metric"><span>Package amount</span><strong id="paymentValue">KES 0</strong></div>
+    </section>
+
+    <section class="quick-grid" aria-label="Dashboard shortcuts">
+      <a class="quick-action" href="#bookingPanel"><div class="icon">B</div><h3>Start Dropshipping</h3><p>Create a booking request for admin approval.</p></a>
+      <a class="quick-action" href="#customerCare"><div class="icon">C</div><h3>Customer Care</h3><p>Open support details and help channels.</p></a>
+      <a class="quick-action" href="#recentBookings"><div class="icon">R</div><h3>My Bookings</h3><p>Review saved booking records.</p></a>
+      <a class="quick-action" href="#profilePanel"><div class="icon">P</div><h3>My Profile</h3><p>Confirm profile and account information.</p></a>
+    </section>
+
+    <section class="two-col section-gap">
+      <div class="panel">
+        <h2>Real-time activity progress</h2>
+        <div class="chart-wrap"><canvas id="activityChart" width="900" height="320"></canvas></div>
+      </div>
+      <div class="panel">
+        <h2>Recorded activity</h2>
+        <div class="tasks" id="activityList"></div>
+      </div>
+    </section>
+
+    <section class="request-grid section-gap">
+      <form class="panel" id="depositForm">
+        <h2>Deposit funds</h2>
+        <p>Send funds using the paybill above, then submit the amount for admin approval.</p>
+        <label for="depositAmount">Deposit amount KES</label>
+        <input id="depositAmount" type="number" min="1" step="1" required />
+        <button class="btn" type="submit">Submit deposit for approval</button>
+        <p class="message" id="depositMessage"></p>
+      </form>
+      <form class="panel" id="withdrawalForm">
+        <h2>Withdraw funds</h2>
+        <p>Withdrawals require admin approval. A denied withdrawal will include a saved reason.</p>
+        <label for="withdrawalAmount">Withdrawal amount KES</label>
+        <input id="withdrawalAmount" type="number" min="1" step="1" required />
+        <button class="btn" type="submit">Request withdrawal</button>
+        <p class="message" id="withdrawalMessage"></p>
+      </form>
+    </section>
+
+    <section class="panel section-gap" id="bookingPanel">
+      <h2>Start dropshipping booking</h2>
+      <form id="bookingForm" class="two-col">
+        <div>
+          <label for="bookingPlan">Plan</label>
+          <select id="bookingPlan">
+            <option value="Basic" data-amount="5000" data-profit="800">Basic - KES 5,000</option>
+            <option value="Complete" data-amount="15000" data-profit="2400">Complete - KES 15,000</option>
+            <option value="Membership" data-amount="25000" data-profit="4000">Membership - KES 25,000</option>
+            <option value="Upgrade to Premium" data-amount="50000" data-profit="8000">Upgrade to Premium - KES 50,000</option>
+          </select>
+        </div>
+        <div>
+          <label for="containerId">Container ID</label>
+          <input id="containerId" placeholder="Optional - assigned by admin" />
+        </div>
+        <div><button class="btn" type="submit">Submit booking request</button></div>
+        <p class="message" id="bookingMessage"></p>
+      </form>
+    </section>
+
+    <section class="panel section-gap" id="recentBookings">
+      <h2>Recent bookings</h2>
+      <div class="filters">
+        <input id="bookingSearch" placeholder="Search Container ID or plan" />
+        <select id="bookingStatus"><option value="">All</option><option value="Pending">Pending</option><option value="Approved">Approved</option><option value="Denied">Denied</option></select>
+      </div>
+      <div class="table-wrap"><table><thead><tr><th>Booking</th><th>Amount</th><th>Status</th><th>Created</th></tr></thead><tbody id="bookingsTable"></tbody></table></div>
+    </section>
+
+    <section class="two-col section-gap">
+      <div class="panel" id="profilePanel">
+        <h2>Profile</h2>
+        <p id="profileDetails">Profile details will appear here.</p>
+      </div>
+      <div class="panel" id="customerCare">
+        <h2>Customer care</h2>
+        <p>Phone: <a href="tel:+447402690551">+44 7402 690551</a><br />Email: <a href="mailto:dropshimpent.ecommerce@gmail.com">dropshimpent.ecommerce@gmail.com</a><br />WhatsApp: <a href="https://wa.me/message/AXBZCPUEDZJKE1?src=qr">Open WhatsApp support</a></p>
+      </div>
+    </section>
+
+    <section class="panel referral">
+      <h2>Start your dropshipping referral journey</h2>
+      <p id="referralLabel">Share your personal referral link and earn commission when a downline account is activated.</p>
+      <div class="ref-box"><input id="referralLink" readonly /><button class="btn" type="button" onclick="copyReferral()">Copy link</button></div>
+      <p>Requirement: your downline must activate his or her account before commission is approved.</p>
+    </section>
+
+    <section class="menu-grid section-gap" aria-label="Account menu">
+      <a class="menu-item" href="dashboard.html"><div class="icon">D</div><h3>Dashboard</h3><p>Return to the main dashboard.</p></a>
+      <a class="menu-item" href="Menu.html"><div class="icon">M</div><h3>Menu</h3><p>Open all client shortcuts.</p></a>
+      <a class="menu-item" href="sign up.html"><div class="icon">U</div><h3>Downline Payment</h3><p>Create or support a referred account.</p></a>
+      <a class="menu-item" href="sign in.html" onclick="localStorage.removeItem('signedIn')"><div class="icon">L</div><h3>Close and Logout</h3><p>Clear the current session.</p></a>
+    </section>
   </main>
-  <aside class="withdrawal-toast" id="withdrawalToast" aria-live="polite" aria-atomic="true"><div class="toast-icon">$</div><div><div class="toast-kicker">Withdrawal update</div><p class="toast-title" id="withdrawalTitle">A client has withdrawn funds.</p><p class="toast-meta" id="withdrawalMeta">Updated just now.</p></div><button class="toast-close" type="button" aria-label="Close notification" onclick="hideWithdrawalToast()">x</button></aside>
   <script>
     if (localStorage.getItem('signedIn') !== 'true') window.location.href = 'sign in.html';
     const storedName = (localStorage.getItem('clientName') || 'Sandra').trim() || 'Sandra';
     const clientEmail = (localStorage.getItem('clientEmail') || '').toLowerCase();
+    const clientPhone = localStorage.getItem('clientPhone') || '';
     const referrer = (localStorage.getItem('referrerName') || 'Sandra').trim() || 'Sandra';
     document.getElementById('welcome').textContent = 'Welcome back, ' + storedName;
     document.getElementById('userPill').textContent = storedName;
@@ -66,6 +184,7 @@
     const referralLink = basePath + '?ref=' + encodeURIComponent(storedName);
     document.getElementById('referralLink').value = referralLink;
     document.getElementById('referralLabel').textContent = 'This referral link bears the referrer name: ' + storedName + '.';
+
     function readJson(key, fallback) { try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); } catch (error) { return fallback; } }
     function writeJson(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
     function getCurrentAccount() { return readJson('accounts', []).find(account => account.email === clientEmail) || {}; }
@@ -74,6 +193,11 @@
     function getRequests() { return readJson('adminRequests', []); }
     function saveRequests(requests) { writeJson('adminRequests', requests); }
     function logActivity(label, percent) { const activity = getActivity(); activity.push({ label, percent, time: new Date().toISOString() }); saveActivity(activity); }
+    function currentProgress() { let percent = 0; if (storedName) percent += 20; if (clientEmail) percent += 20; if (clientPhone) percent += 15; if (localStorage.getItem('signedIn') === 'true') percent += 25; if (referralLink) percent += 20; return Math.min(percent, 100); }
+    function accountRequests() { return getRequests().filter(req => req.userEmail === clientEmail); }
+    function approvedTotal(types) { return accountRequests().filter(req => req.status === 'Approved' && types.includes(req.type)).reduce((sum, req) => sum + Number(req.amount || 0), 0); }
+    function pendingTotal(types) { return accountRequests().filter(req => req.status === 'Pending' && types.includes(req.type)).reduce((sum, req) => sum + Number(req.amount || 0), 0); }
+    function formatKes(value) { return 'KES ' + Number(value || 0).toLocaleString('en-KE', { minimumFractionDigits:2, maximumFractionDigits:2 }); }
     function createAdminRequest(type, amount, details) {
       const account = getCurrentAccount();
       const requests = getRequests();
@@ -82,19 +206,78 @@
       logActivity(type + ' submitted for admin approval', currentProgress());
       renderDashboard();
     }
-    function currentProgress() { let percent = 0; if (storedName) percent += 20; if (clientEmail) percent += 20; if (localStorage.getItem('clientPhone')) percent += 15; if (localStorage.getItem('signedIn') === 'true') percent += 25; if (referralLink) percent += 20; return Math.min(percent, 100); }
     function recordVisit() { const activity = getActivity(); const today = new Date().toISOString().slice(0,10); if (!activity.some(item => item.label === 'Dashboard opened' && item.time.slice(0,10) === today)) { activity.push({ label:'Dashboard opened', percent:currentProgress(), time:new Date().toISOString() }); saveActivity(activity); } }
     function copyReferral() { const field = document.getElementById('referralLink'); field.select(); if (navigator.clipboard) navigator.clipboard.writeText(field.value); createAdminRequest('Referral link copied', 0, storedName + ' copied a referral link.'); }
-    document.getElementById('paymentForm').addEventListener('submit', event => { event.preventDefault(); const amount = document.getElementById('paymentAmount').value; createAdminRequest('Payment approval', amount, storedName + ' submitted payment for admin review.'); document.getElementById('paymentMessage').textContent = 'Payment request sent to Admin Control.'; });
-    document.getElementById('withdrawalForm').addEventListener('submit', event => { event.preventDefault(); const amount = document.getElementById('withdrawalAmount').value; createAdminRequest('Withdrawal request', amount, storedName + ' requested a withdrawal.'); document.getElementById('withdrawalMessage').textContent = 'Withdrawal request sent to Admin Control.'; });
-    function renderDashboard() { const account = getCurrentAccount(); const progress = currentProgress(); const activity = getActivity(); document.getElementById('progressValue').textContent = progress + '%'; document.getElementById('accountStatus').textContent = account.accountStatus || 'Pending'; document.getElementById('roleValue').textContent = account.role || 'Subscriber'; document.getElementById('paymentValue').textContent = 'GBP ' + Number(account.paymentAmount || 0).toLocaleString('en-GB'); document.getElementById('joinedMessage').textContent = account.joinedMessage || (storedName + ' joined using ' + referrer + "'s link"); const list = document.getElementById('activityList'); list.innerHTML = ''; activity.slice(-6).reverse().forEach(item => { const row = document.createElement('div'); row.className = 'task'; row.innerHTML = '<span>' + item.label + ' - ' + new Date(item.time).toLocaleString() + '</span><span class="status">' + item.percent + '%</span>'; list.appendChild(row); }); if (!activity.length) list.innerHTML = '<div class="task"><span>No activity recorded yet.</span><span class="status">0%</span></div>'; drawChart(activity, progress); }
+
+    document.getElementById('depositForm').addEventListener('submit', event => {
+      event.preventDefault();
+      const amount = document.getElementById('depositAmount').value;
+      createAdminRequest('Deposit approval', amount, storedName + ' submitted an M-Pesa deposit for admin review. Paybill 998608, account 254740018926.');
+      document.getElementById('depositMessage').textContent = 'Deposit request sent to Admin Control.';
+      event.target.reset();
+    });
+    document.getElementById('withdrawalForm').addEventListener('submit', event => {
+      event.preventDefault();
+      const amount = document.getElementById('withdrawalAmount').value;
+      createAdminRequest('Withdrawal request', amount, storedName + ' requested a withdrawal.');
+      document.getElementById('withdrawalMessage').textContent = 'Withdrawal request sent to Admin Control.';
+      event.target.reset();
+    });
+    document.getElementById('bookingForm').addEventListener('submit', event => {
+      event.preventDefault();
+      const planField = document.getElementById('bookingPlan');
+      const option = planField.options[planField.selectedIndex];
+      const plan = planField.value;
+      const amount = Number(option.dataset.amount || 0);
+      const profit = Number(option.dataset.profit || 0);
+      const containerId = document.getElementById('containerId').value.trim() || 'Pending admin assignment';
+      createAdminRequest('Booking request', amount, 'Plan: ' + plan + '. Expected profit: KES ' + profit.toLocaleString('en-KE') + '. Container ID: ' + containerId + '.');
+      document.getElementById('bookingMessage').textContent = 'Booking request sent to Admin Control.';
+      event.target.reset();
+    });
+    document.getElementById('bookingSearch').addEventListener('input', renderBookings);
+    document.getElementById('bookingStatus').addEventListener('change', renderBookings);
+
+    function renderDashboard() {
+      const account = getCurrentAccount();
+      const progress = currentProgress();
+      const activity = getActivity();
+      const deposits = approvedTotal(['Deposit approval','Payment approval','Account activation']);
+      const withdrawals = approvedTotal(['Withdrawal request']);
+      const pendingDeposits = pendingTotal(['Deposit approval','Payment approval','Account activation']);
+      const wallet = Math.max(deposits - withdrawals, 0);
+      document.getElementById('depositBalance').textContent = formatKes(deposits);
+      document.getElementById('walletBalance').textContent = formatKes(wallet);
+      document.getElementById('accountStatus').textContent = account.accountStatus || 'Pending';
+      document.getElementById('paymentValue').textContent = formatKes(account.paymentAmount || pendingDeposits || 0);
+      document.getElementById('profileDetails').innerHTML = '<strong>' + escapeHtml(storedName) + '</strong><br>' + escapeHtml(clientEmail || 'No email saved') + '<br>' + escapeHtml(clientPhone || 'No phone saved') + '<br>Role: ' + escapeHtml(account.role || 'Subscriber') + '<br>Joined through: ' + escapeHtml(account.joinedMessage || (storedName + ' joined using ' + referrer + "'s link"));
+      const list = document.getElementById('activityList');
+      list.innerHTML = '';
+      activity.slice(-6).reverse().forEach(item => { const row = document.createElement('div'); row.className = 'task'; row.innerHTML = '<span>' + escapeHtml(item.label) + ' - ' + new Date(item.time).toLocaleString() + '</span><span class="status">' + Number(item.percent || 0) + '%</span>'; list.appendChild(row); });
+      if (!activity.length) list.innerHTML = '<div class="task"><span>No activity recorded yet.</span><span class="status">0%</span></div>';
+      drawChart(activity, progress);
+      renderBookings();
+    }
+    function renderBookings() {
+      const search = document.getElementById('bookingSearch').value.trim().toLowerCase();
+      const status = document.getElementById('bookingStatus').value;
+      const rows = accountRequests().filter(req => req.type === 'Booking request').filter(req => !status || req.status === status).filter(req => {
+        const text = (req.details + ' ' + req.id).toLowerCase();
+        return !search || text.includes(search);
+      }).slice().reverse().map(req => '<tr><td><strong>' + escapeHtml(req.id) + '</strong><br>' + escapeHtml(req.details) + '</td><td>' + formatKes(req.amount) + '</td><td><span class="status">' + escapeHtml(req.status) + '</span></td><td>' + new Date(req.createdAt).toLocaleString() + '</td></tr>').join('');
+      document.getElementById('bookingsTable').innerHTML = rows || '<tr><td colspan="4">No bookings found.</td></tr>';
+    }
+    function escapeHtml(value) { return String(value || '').replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char])); }
     const canvas = document.getElementById('activityChart'); const ctx = canvas.getContext('2d');
-    function drawChart(activity, progress) { const w = canvas.width, h = canvas.height; ctx.clearRect(0,0,w,h); ctx.fillStyle = '#fff'; ctx.fillRect(0,0,w,h); ctx.strokeStyle = '#e4eaf2'; ctx.lineWidth = 1; for (let i=0;i<5;i++){ const y=30+i*60; ctx.beginPath(); ctx.moveTo(46,y); ctx.lineTo(w-22,y); ctx.stroke(); } const points = activity.length ? activity.map(item => Number(item.percent)||0) : [progress]; if (points[points.length-1] !== progress) points.push(progress); ctx.beginPath(); points.forEach((value,index)=>{ const x = points.length === 1 ? w/2 : 52 + index * ((w-92)/(points.length-1)); const y = h-42-(value/100)*(h-84); if(index===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); }); ctx.strokeStyle = '#1769e0'; ctx.lineWidth = 4; ctx.stroke(); points.forEach((value,index)=>{ const x = points.length === 1 ? w/2 : 52 + index * ((w-92)/(points.length-1)); const y = h-42-(value/100)*(h-84); ctx.fillStyle = '#14b8a6'; ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2); ctx.fill(); }); }
-    const withdrawalLocations = ['Kenya','Uganda','Ethiopia','United Kingdom','United States','Canada','Germany','South Africa','United Arab Emirates','Australia']; const withdrawalNames = ['A client','A verified member','A partner','A customer','A registered user']; const withdrawalAmounts = [85,120,175,240,310,450,520,690,830,975,1240]; const withdrawalIntervalMs = 20 * 60 * 1000; let withdrawalTimer;
-    function pickRandom(items) { return items[Math.floor(Math.random() * items.length)]; }
-    function showWithdrawalToast() { const location = pickRandom(withdrawalLocations); const name = pickRandom(withdrawalNames); const amount = pickRandom(withdrawalAmounts).toLocaleString('en-GB'); const toast = document.getElementById('withdrawalToast'); document.getElementById('withdrawalTitle').textContent = name + ' from ' + location + ' withdrew GBP ' + amount + '.'; document.getElementById('withdrawalMeta').textContent = 'Withdrawal notification - ' + new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }); toast.classList.add('show'); window.clearTimeout(withdrawalTimer); withdrawalTimer = window.setTimeout(hideWithdrawalToast, 9000); }
-    function hideWithdrawalToast() { document.getElementById('withdrawalToast').classList.remove('show'); }
-    recordVisit(); renderDashboard(); setInterval(renderDashboard, 1000); setTimeout(showWithdrawalToast, withdrawalIntervalMs); setInterval(showWithdrawalToast, withdrawalIntervalMs);
+    function drawChart(activity, progress) {
+      const w = canvas.width, h = canvas.height; ctx.clearRect(0,0,w,h); ctx.fillStyle = '#fff'; ctx.fillRect(0,0,w,h); ctx.strokeStyle = '#e4eaf2'; ctx.lineWidth = 1;
+      for (let i=0;i<5;i++){ const y=30+i*60; ctx.beginPath(); ctx.moveTo(46,y); ctx.lineTo(w-22,y); ctx.stroke(); }
+      const points = activity.length ? activity.map(item => Number(item.percent)||0) : [progress]; if (points[points.length-1] !== progress) points.push(progress);
+      ctx.beginPath(); points.forEach((value,index)=>{ const x = points.length === 1 ? w/2 : 52 + index * ((w-92)/(points.length-1)); const y = h-42-(value/100)*(h-84); if(index===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); });
+      ctx.strokeStyle = '#1769e0'; ctx.lineWidth = 4; ctx.stroke();
+      points.forEach((value,index)=>{ const x = points.length === 1 ? w/2 : 52 + index * ((w-92)/(points.length-1)); const y = h-42-(value/100)*(h-84); ctx.fillStyle = '#14b8a6'; ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2); ctx.fill(); });
+    }
+    recordVisit(); renderDashboard(); setInterval(renderDashboard, 1000);
   </script>
 </body>
 </html>
