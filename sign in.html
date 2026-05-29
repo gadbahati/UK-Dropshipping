@@ -32,7 +32,13 @@
     .btn-primary:hover { background:var(--brand-dark); }
     .switch { text-align:center; color:var(--muted); margin-top:20px; }
     .switch a { color:var(--brand); font-weight:800; text-decoration:none; }
-    @media (max-width:780px) { .shell { grid-template-columns:1fr; } .side { min-height:auto; gap:42px; padding:30px; } .side h1 { font-size:34px; } .auth { padding:30px; } }
+    @media (max-width:780px) { 
+      body { padding:12px; }
+      .shell { grid-template-columns:1fr; } 
+      .side { min-height:auto; gap:32px; padding:32px 24px; order:2; } 
+      .side h1 { font-size:32px; } 
+      .auth { padding:32px 24px; order:1; } 
+    }
   </style>
 </head>
 <body>

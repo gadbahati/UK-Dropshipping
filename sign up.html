@@ -36,7 +36,15 @@
     .btn-primary:hover { background:var(--brand-dark); }
     .switch { text-align:center; color:var(--muted); margin-top:20px; }
     .switch a { color:var(--brand); font-weight:800; text-decoration:none; }
-    @media (max-width:860px) { body { grid-template-columns:1fr; } .panel { padding:34px 24px; } .brand { margin-bottom:28px; } .stats { grid-template-columns:1fr; } .auth { padding:24px; } .card { padding:26px; } }
+    @media (max-width:860px) { 
+      body { grid-template-columns:1fr; } 
+      .panel { padding:48px 24px; order:2; } 
+      .auth { padding:24px; order:1; } 
+      .brand { margin-bottom:28px; } 
+      .stats { grid-template-columns:1fr; } 
+      .card { padding:26px; width:100%; max-width:100%; } 
+      h1 { font-size:32px; }
+    }
   </style>
 </head>
 <body>
