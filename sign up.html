@@ -64,10 +64,9 @@
       <input id="phone" name="phone" type="tel" autocomplete="tel" required placeholder="+44 7402 690551" />
       <label for="package">Package</label>
       <select id="package" name="package">
-        <option value="Basic" data-amount="50">Basic - GBP 50</option>
-        <option value="Complete" data-amount="150">Complete - GBP 150</option>
-        <option value="Membership" data-amount="250">Membership - GBP 250</option>
-        <option value="Upgrade to Premium" data-amount="500">Upgrade to Premium - GBP 500</option>
+        <option value="Level 1: Basic" data-amount="1150" data-outcome="9150">Level 1: Basic - KSH 1,150 | Expected KSH 9,150</option>
+        <option value="Level 2: Standard" data-amount="3500" data-outcome="11250">Level 2: Standard - KSH 3,500 | Expected KSH 11,250</option>
+        <option value="Level 3: Expert" data-amount="5500" data-outcome="18750">Level 3: Expert - KSH 5,500 | Expected KSH 18,750</option>
       </select>
       <label for="password">Password</label>
       <input id="password" name="password" type="password" autocomplete="new-password" required minlength="4" placeholder="Create a password" />
@@ -122,6 +121,7 @@
       const selectedOption = packageField.options[packageField.selectedIndex];
       const packageName = packageField.value;
       const paymentAmount = Number(selectedOption.dataset.amount || 0);
+      const expectedOutcome = Number(selectedOption.dataset.outcome || 0);
       const referredBy = document.getElementById('referrer').value.trim() || 'Sandra';
       const accounts = getAccounts();
       if (accounts.some(account => account.email === email)) {
@@ -138,6 +138,7 @@
         role: 'Subscriber',
         packageName: packageName,
         paymentAmount: paymentAmount,
+        expectedOutcome: expectedOutcome,
         accountStatus: 'Pending admin approval',
         paymentStatus: 'Submitted for review',
         referredBy: referredBy,
@@ -146,7 +147,7 @@
       };
       accounts.push(account);
       saveAccounts(accounts);
-      createRequest(account, 'Account activation', paymentAmount, account.joinedMessage + '. Package: ' + packageName + '.');
+      createRequest(account, 'Account activation', paymentAmount, account.joinedMessage + '. Package: ' + packageName + '. Estimated completion: 4 hours. Expected outcome: KSH ' + expectedOutcome.toLocaleString('en-KE') + '.');
       localStorage.setItem('clientName', fullName);
       localStorage.setItem('clientEmail', email);
       localStorage.setItem('clientPhone', phone);

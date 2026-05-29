@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <style>
-    :root { --ink:#172033; --muted:#667085; --line:#d8e0ea; --brand:#1769e0; --brand-dark:#0f4fb0; --accent:#14b8a6; --soft:#f4f7fb; --white:#fff; --warning:#fff8e8; --shadow:0 18px 50px rgba(23,32,51,.1); }
+    :root { --ink:#172033; --muted:#667085; --line:#d8e0ea; --brand:#1769e0; --brand-dark:#0f4fb0; --accent:#14b8a6; --danger:#b42318; --soft:#f4f7fb; --white:#fff; --warning:#fff8e8; --shadow:0 18px 50px rgba(23,32,51,.1); }
     * { box-sizing:border-box; }
     body { margin:0; min-height:100vh; font-family:Inter,Arial,sans-serif; color:var(--ink); background:#f4f7fb; }
     .topbar { min-height:72px; display:flex; align-items:center; gap:16px; justify-content:space-between; padding:12px 28px; background:#fff; border-bottom:1px solid var(--line); position:sticky; top:0; z-index:10; }
@@ -35,6 +35,7 @@
     .chart-wrap { height:310px; position:relative; } canvas { width:100%; height:100%; display:block; }
     .tasks { display:grid; gap:12px; } .task { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:13px 0; border-bottom:1px solid var(--line); }
     .task:last-child { border-bottom:0; } .status { color:#0f766e; background:#e9f7f5; border-radius:999px; padding:6px 10px; font-size:12px; font-weight:900; white-space:nowrap; }
+    .status.pending { background:#fff8e8; color:#92400e; } .status.denied { background:#fff1f1; color:var(--danger); }
     .quick-action,.menu-item { display:block; color:var(--ink); text-decoration:none; transition:transform .18s ease,border-color .18s ease; }
     .quick-action:hover,.menu-item:hover { transform:translateY(-2px); border-color:rgba(23,105,224,.4); }
     .icon { width:42px; height:42px; border-radius:8px; display:grid; place-items:center; background:#e9f2ff; color:var(--brand); font-weight:900; margin-bottom:14px; }
@@ -50,7 +51,14 @@
     .table-wrap { overflow:auto; border:1px solid var(--line); border-radius:8px; background:#fff; }
     table { width:100%; border-collapse:collapse; min-width:720px; } th,td { padding:12px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; font-size:14px; } th { background:#f8fafc; color:#344054; font-size:12px; text-transform:uppercase; letter-spacing:0; } tr:last-child td { border-bottom:0; }
     .section-gap { margin-top:20px; }
-    @media (max-width:900px) { .hero,.two-col,.metrics,.request-grid,.quick-grid,.menu-grid { grid-template-columns:1fr; } .topbar { padding:12px 18px; } .right { display:none; } .layout { padding:20px; } h1 { font-size:28px; } .ref-box,.filters { flex-direction:column; align-items:stretch; } }
+    .approval-note { margin:0 0 20px; background:#fff8e8; border:1px solid #f4d28f; color:#92400e; border-radius:8px; padding:16px 18px; font-weight:800; line-height:1.5; }
+    .approval-note.approved { background:#e9f7f5; border-color:#a9ddd5; color:#0f766e; }
+    .plans { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:14px 0 18px; }
+    .plan-card { border:1px solid var(--line); border-radius:8px; padding:14px; background:#f8fafc; }
+    .plan-card strong { display:block; margin-bottom:6px; } .plan-card span { display:block; color:var(--muted); font-size:13px; line-height:1.5; }
+    .locked { opacity:.62; }
+    .locked input,.locked select,.locked button { pointer-events:none; }
+    @media (max-width:900px) { .hero,.two-col,.metrics,.request-grid,.quick-grid,.menu-grid,.plans { grid-template-columns:1fr; } .topbar { padding:12px 18px; } .right { display:none; } .layout { padding:20px; } h1 { font-size:28px; } .ref-box,.filters { flex-direction:column; align-items:stretch; } }
   </style>
 </head>
 <body>
@@ -72,12 +80,13 @@
         <p><strong>Paybill:</strong> 998608<br /><strong>Account number:</strong> 254740018926</p>
       </div>
     </section>
+    <div class="approval-note" id="approvalNotice">Admin approval is required before account actions are available.</div>
 
     <section class="metrics">
-      <div class="metric"><span>Deposit balance</span><strong id="depositBalance">KES 0.00</strong></div>
-      <div class="metric"><span>Wallet balance</span><strong id="walletBalance">KES 0.00</strong></div>
+      <div class="metric"><span>Amount paid</span><strong id="depositBalance">KSH 0.00</strong></div>
+      <div class="metric"><span>Earned after dropshipping</span><strong id="walletBalance">KSH 0.00</strong></div>
       <div class="metric"><span>Account status</span><strong id="accountStatus">Pending</strong></div>
-      <div class="metric"><span>Package amount</span><strong id="paymentValue">KES 0</strong></div>
+      <div class="metric"><span>Selected package</span><strong id="paymentValue">Pending</strong></div>
     </section>
 
     <section class="quick-grid" aria-label="Dashboard shortcuts">
@@ -102,7 +111,7 @@
       <form class="panel" id="depositForm">
         <h2>Deposit funds</h2>
         <p>Send funds using the paybill above, then submit the amount for admin approval.</p>
-        <label for="depositAmount">Deposit amount KES</label>
+        <label for="depositAmount">Deposit amount KSH</label>
         <input id="depositAmount" type="number" min="1" step="1" required />
         <button class="btn" type="submit">Submit deposit for approval</button>
         <p class="message" id="depositMessage"></p>
@@ -110,7 +119,7 @@
       <form class="panel" id="withdrawalForm">
         <h2>Withdraw funds</h2>
         <p>Withdrawals require admin approval. A denied withdrawal will include a saved reason.</p>
-        <label for="withdrawalAmount">Withdrawal amount KES</label>
+        <label for="withdrawalAmount">Withdrawal amount KSH</label>
         <input id="withdrawalAmount" type="number" min="1" step="1" required />
         <button class="btn" type="submit">Request withdrawal</button>
         <p class="message" id="withdrawalMessage"></p>
@@ -119,14 +128,19 @@
 
     <section class="panel section-gap" id="bookingPanel">
       <h2>Start dropshipping booking</h2>
+      <p>Choose one of the approved booking levels below. Each booking request is submitted to Admin Control before it appears as approved.</p>
+      <div class="plans" aria-label="Booking levels">
+        <div class="plan-card"><strong>Level 1: Basic</strong><span>Booking amount: KSH 1,150</span><span>Expected outcome: KSH 9,150</span><span>Estimated time: 4 hours</span></div>
+        <div class="plan-card"><strong>Level 2: Standard</strong><span>Booking amount: KSH 3,500</span><span>Expected outcome: KSH 11,250</span><span>Estimated time: 4 hours</span></div>
+        <div class="plan-card"><strong>Level 3: Expert</strong><span>Booking amount: KSH 5,500</span><span>Expected outcome: KSH 18,750</span><span>Estimated time: 4 hours</span></div>
+      </div>
       <form id="bookingForm" class="two-col">
         <div>
           <label for="bookingPlan">Plan</label>
           <select id="bookingPlan">
-            <option value="Basic" data-amount="5000" data-profit="800">Basic - KES 5,000</option>
-            <option value="Complete" data-amount="15000" data-profit="2400">Complete - KES 15,000</option>
-            <option value="Membership" data-amount="25000" data-profit="4000">Membership - KES 25,000</option>
-            <option value="Upgrade to Premium" data-amount="50000" data-profit="8000">Upgrade to Premium - KES 50,000</option>
+            <option value="Level 1: Basic" data-amount="1150" data-profit="9150">Level 1: Basic - KSH 1,150 | Expected KSH 9,150</option>
+            <option value="Level 2: Standard" data-amount="3500" data-profit="11250">Level 2: Standard - KSH 3,500 | Expected KSH 11,250</option>
+            <option value="Level 3: Expert" data-amount="5500" data-profit="18750">Level 3: Expert - KSH 5,500 | Expected KSH 18,750</option>
           </select>
         </div>
         <div>
@@ -195,9 +209,10 @@
     function logActivity(label, percent) { const activity = getActivity(); activity.push({ label, percent, time: new Date().toISOString() }); saveActivity(activity); }
     function currentProgress() { let percent = 0; if (storedName) percent += 20; if (clientEmail) percent += 20; if (clientPhone) percent += 15; if (localStorage.getItem('signedIn') === 'true') percent += 25; if (referralLink) percent += 20; return Math.min(percent, 100); }
     function accountRequests() { return getRequests().filter(req => req.userEmail === clientEmail); }
+    function isAccountApproved() { const account = getCurrentAccount(); return account.accountStatus === 'Active' && account.paymentStatus === 'Approved'; }
     function approvedTotal(types) { return accountRequests().filter(req => req.status === 'Approved' && types.includes(req.type)).reduce((sum, req) => sum + Number(req.amount || 0), 0); }
     function pendingTotal(types) { return accountRequests().filter(req => req.status === 'Pending' && types.includes(req.type)).reduce((sum, req) => sum + Number(req.amount || 0), 0); }
-    function formatKes(value) { return 'KES ' + Number(value || 0).toLocaleString('en-KE', { minimumFractionDigits:2, maximumFractionDigits:2 }); }
+    function formatKes(value) { return 'KSH ' + Number(value || 0).toLocaleString('en-KE', { minimumFractionDigits:2, maximumFractionDigits:2 }); }
     function createAdminRequest(type, amount, details) {
       const account = getCurrentAccount();
       const requests = getRequests();
@@ -206,11 +221,26 @@
       logActivity(type + ' submitted for admin approval', currentProgress());
       renderDashboard();
     }
+    function requireApproval(messageId) {
+      if (isAccountApproved()) return true;
+      const message = document.getElementById(messageId);
+      if (message) message.textContent = 'Admin approval is required before this action can be submitted.';
+      return false;
+    }
+    function setRestrictedState() {
+      const approved = isAccountApproved();
+      document.querySelectorAll('#depositForm,#withdrawalForm,#bookingForm,.referral').forEach(section => section.classList.toggle('locked', !approved));
+      document.querySelectorAll('#depositForm input,#depositForm button,#withdrawalForm input,#withdrawalForm button,#bookingForm input,#bookingForm select,#bookingForm button,.referral button').forEach(control => { control.disabled = !approved; });
+      const notice = document.getElementById('approvalNotice');
+      notice.classList.toggle('approved', approved);
+      notice.textContent = approved ? 'Your account payment has been approved. Dashboard actions are now available.' : 'Admin approval is required before deposits, withdrawals, bookings, and referral actions are available.';
+    }
     function recordVisit() { const activity = getActivity(); const today = new Date().toISOString().slice(0,10); if (!activity.some(item => item.label === 'Dashboard opened' && item.time.slice(0,10) === today)) { activity.push({ label:'Dashboard opened', percent:currentProgress(), time:new Date().toISOString() }); saveActivity(activity); } }
     function copyReferral() { const field = document.getElementById('referralLink'); field.select(); if (navigator.clipboard) navigator.clipboard.writeText(field.value); createAdminRequest('Referral link copied', 0, storedName + ' copied a referral link.'); }
 
     document.getElementById('depositForm').addEventListener('submit', event => {
       event.preventDefault();
+      if (!requireApproval('depositMessage')) return;
       const amount = document.getElementById('depositAmount').value;
       createAdminRequest('Deposit approval', amount, storedName + ' submitted an M-Pesa deposit for admin review. Paybill 998608, account 254740018926.');
       document.getElementById('depositMessage').textContent = 'Deposit request sent to Admin Control.';
@@ -218,6 +248,7 @@
     });
     document.getElementById('withdrawalForm').addEventListener('submit', event => {
       event.preventDefault();
+      if (!requireApproval('withdrawalMessage')) return;
       const amount = document.getElementById('withdrawalAmount').value;
       createAdminRequest('Withdrawal request', amount, storedName + ' requested a withdrawal.');
       document.getElementById('withdrawalMessage').textContent = 'Withdrawal request sent to Admin Control.';
@@ -225,13 +256,14 @@
     });
     document.getElementById('bookingForm').addEventListener('submit', event => {
       event.preventDefault();
+      if (!requireApproval('bookingMessage')) return;
       const planField = document.getElementById('bookingPlan');
       const option = planField.options[planField.selectedIndex];
       const plan = planField.value;
       const amount = Number(option.dataset.amount || 0);
       const profit = Number(option.dataset.profit || 0);
       const containerId = document.getElementById('containerId').value.trim() || 'Pending admin assignment';
-      createAdminRequest('Booking request', amount, 'Plan: ' + plan + '. Expected profit: KES ' + profit.toLocaleString('en-KE') + '. Container ID: ' + containerId + '.');
+      createAdminRequest('Booking request', amount, 'Plan: ' + plan + '. Expected outcome: KSH ' + profit.toLocaleString('en-KE') + '. Estimated completion: 4 hours. Container ID: ' + containerId + '.');
       document.getElementById('bookingMessage').textContent = 'Booking request sent to Admin Control.';
       event.target.reset();
     });
@@ -242,20 +274,21 @@
       const account = getCurrentAccount();
       const progress = currentProgress();
       const activity = getActivity();
-      const deposits = approvedTotal(['Deposit approval','Payment approval','Account activation']);
+      const deposits = account.paymentStatus === 'Approved' ? Number(account.paymentAmount || 0) : 0;
       const withdrawals = approvedTotal(['Withdrawal request']);
       const pendingDeposits = pendingTotal(['Deposit approval','Payment approval','Account activation']);
-      const wallet = Math.max(deposits - withdrawals, 0);
+      const wallet = account.paymentStatus === 'Approved' ? Math.max(Number(account.expectedOutcome || 0) - withdrawals, 0) : 0;
       document.getElementById('depositBalance').textContent = formatKes(deposits);
       document.getElementById('walletBalance').textContent = formatKes(wallet);
       document.getElementById('accountStatus').textContent = account.accountStatus || 'Pending';
-      document.getElementById('paymentValue').textContent = formatKes(account.paymentAmount || pendingDeposits || 0);
-      document.getElementById('profileDetails').innerHTML = '<strong>' + escapeHtml(storedName) + '</strong><br>' + escapeHtml(clientEmail || 'No email saved') + '<br>' + escapeHtml(clientPhone || 'No phone saved') + '<br>Role: ' + escapeHtml(account.role || 'Subscriber') + '<br>Joined through: ' + escapeHtml(account.joinedMessage || (storedName + ' joined using ' + referrer + "'s link"));
+      document.getElementById('paymentValue').textContent = account.packageName || (pendingDeposits ? 'Payment under review' : 'Pending');
+      document.getElementById('profileDetails').innerHTML = '<strong>' + escapeHtml(storedName) + '</strong><br>' + escapeHtml(clientEmail || 'No email saved') + '<br>' + escapeHtml(clientPhone || 'No phone saved') + '<br>Role: ' + escapeHtml(account.role || 'Subscriber') + '<br>Package: ' + escapeHtml(account.packageName || 'Not selected') + '<br>Paid: ' + formatKes(account.paymentStatus === 'Approved' ? account.paymentAmount : 0) + '<br>Expected outcome: ' + formatKes(account.paymentStatus === 'Approved' ? account.expectedOutcome : 0) + '<br>Joined through: ' + escapeHtml(account.joinedMessage || (storedName + ' joined using ' + referrer + "'s link"));
       const list = document.getElementById('activityList');
       list.innerHTML = '';
       activity.slice(-6).reverse().forEach(item => { const row = document.createElement('div'); row.className = 'task'; row.innerHTML = '<span>' + escapeHtml(item.label) + ' - ' + new Date(item.time).toLocaleString() + '</span><span class="status">' + Number(item.percent || 0) + '%</span>'; list.appendChild(row); });
       if (!activity.length) list.innerHTML = '<div class="task"><span>No activity recorded yet.</span><span class="status">0%</span></div>';
       drawChart(activity, progress);
+      setRestrictedState();
       renderBookings();
     }
     function renderBookings() {
@@ -264,7 +297,7 @@
       const rows = accountRequests().filter(req => req.type === 'Booking request').filter(req => !status || req.status === status).filter(req => {
         const text = (req.details + ' ' + req.id).toLowerCase();
         return !search || text.includes(search);
-      }).slice().reverse().map(req => '<tr><td><strong>' + escapeHtml(req.id) + '</strong><br>' + escapeHtml(req.details) + '</td><td>' + formatKes(req.amount) + '</td><td><span class="status">' + escapeHtml(req.status) + '</span></td><td>' + new Date(req.createdAt).toLocaleString() + '</td></tr>').join('');
+      }).slice().reverse().map(req => '<tr><td><strong>' + escapeHtml(req.id) + '</strong><br>' + escapeHtml(req.details) + '</td><td>' + formatKes(req.amount) + '</td><td><span class="status ' + escapeHtml(req.status.toLowerCase()) + '">' + escapeHtml(req.status) + '</span></td><td>' + new Date(req.createdAt).toLocaleString() + '</td></tr>').join('');
       document.getElementById('bookingsTable').innerHTML = rows || '<tr><td colspan="4">No bookings found.</td></tr>';
     }
     function escapeHtml(value) { return String(value || '').replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char])); }
