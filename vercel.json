@@ -1,21 +1,30 @@
 {
+  "version": 2,
   "buildCommand": "pnpm build",
-  "outputDirectory": "dist",
-  "framework": "other",
-  "env": {
-    "NODE_ENV": "production"
-  },
+  "outputDirectory": ".",
+  "framework": null,
   "functions": {
-    "server/_core/index.ts": {
+    "api/index.js": {
       "runtime": "nodejs20.x",
-      "memory": 512,
+      "memory": 1024,
       "maxDuration": 60
     }
   },
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "/dist/index.js"
+      "source": "/(.*)",
+      "destination": "/api/index.js"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
     }
   ]
 }
