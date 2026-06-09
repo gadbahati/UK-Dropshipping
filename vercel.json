@@ -1,8 +1,7 @@
 {
   "version": 2,
   "buildCommand": "pnpm build",
-  "outputDirectory": ".",
-  "framework": null,
+  "public": false,
   "functions": {
     "api/index.js": {
       "runtime": "nodejs20.x",
@@ -10,21 +9,10 @@
       "maxDuration": 60
     }
   },
-  "rewrites": [
+  "routes": [
     {
-      "source": "/(.*)",
-      "destination": "/api/index.js"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=0, must-revalidate"
-        }
-      ]
+      "src": "/(.*)",
+      "dest": "/api/index.js"
     }
   ]
 }
