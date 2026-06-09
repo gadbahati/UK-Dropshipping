@@ -4,9 +4,7 @@
   "public": false,
   "functions": {
     "api/index.js": {
-      "runtime": "nodejs20.x",
-      "memory": 1024,
-      "maxDuration": 60
+      "runtime": "nodejs@20.x"
     }
   },
   "routes": [
