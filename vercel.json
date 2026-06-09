@@ -1,12 +1,6 @@
 {
   "version": 2,
   "buildCommand": "pnpm build",
-  "public": false,
-  "functions": {
-    "api/index.js": {
-      "runtime": "nodejs@20.x"
-    }
-  },
   "routes": [
     {
       "src": "/(.*)",
